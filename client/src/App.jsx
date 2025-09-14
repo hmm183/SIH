@@ -12,6 +12,7 @@ import PrescriptionPage from './components/patient/Prescriptions';
 import AuthPage from './components/AuthPage';
 import DailyReadingsPage from './components/patient/DailyReadingsPage'; // <-- Import the new page
 import DoctorAuth from './components/doctor/DoctorAuth';
+import PatientProfile from './components/patient/PatientProfile';
 
 
 
@@ -43,6 +44,7 @@ function App() {
             <Route path="/patient/prescriptions" element={<PrescriptionPage />} /> 
             <Route path="/patient/readings" element={<DailyReadingsPage />} />
             <Route path="/doctor/auth" element={<DoctorAuth />} />
+            <Route path="/patient/profile/:id" element={<PatientProfile />} />
             <Route path="/auth" element={<AuthPage />} />
           </Routes>
         </main>

@@ -1,6 +1,6 @@
 const Prescription = require('../models/prescriptionModel'); // Adjust the path as needed
 const Patient = require('../models/patientModel'); // Corrected model name
-const Doctor = require('../models/doctorModel'); // Corrected model name
+const Doctor = require('../models/Doctor'); // Corrected model name
 
 /**
  * @desc    Create a new prescription
