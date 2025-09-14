@@ -1,0 +1,55 @@
+// server.js
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const path = require("path"); // 👈 1. Import the 'path' module
+
+// 👇 2. Configure dotenv with an absolute path to your .env file
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+// 👇 3. NOW, require and connect to the database
+const connectDB = require("./config/db");
+connectDB();
+
+// --- Continue requiring the rest of your routes ---
+const prescriptionRoutes = require("./routes/prescriptionRoutes");
+const historyRoutes = require("./routes/historyRoutes");
+const healthSummaryRoutes = require("./routes/healthSummaryRoutes");
+const noteRoutes = require("./routes/noteRoutes");
+const translationRoutes = require("./routes/translationRoutes");
+const authRoutes = require("./routes/authRoutes");
+const patientRoutes = require("./routes/patientRoutes");
+const doctorRoutes = require("./routes/doctorRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const emergencyRoutes = require("./routes/emergencyRoutes");
+const dailyReadingRoutes = require('./routes/dailyReadingRoutes');
+const verifyRoutes = require('./routes/verifyRoutes');
+
+
+const app = express();
+
+// ... (the rest of your server.js file is correct) ...
+app.use(express.json());
+app.use(cors());
+
+// Mount routers
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/patients", patientRoutes);
+app.use("/api/v1/doctors", doctorRoutes);
+app.use("/api/v1/report", reportRoutes);
+app.use("/api/v1/emergency", emergencyRoutes);
+app.use("/api/v1/prescriptions", prescriptionRoutes);
+app.use("/api/v1/history", historyRoutes);
+app.use("/api/v1/notes", noteRoutes);
+app.use("/api/v1/summary", healthSummaryRoutes);
+app.use('/api/v1/readings', dailyReadingRoutes);
+app.use("/api/v1/verify", verifyRoutes);
+app.use("/api/v1", translationRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(
+    `Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+  );
+});
