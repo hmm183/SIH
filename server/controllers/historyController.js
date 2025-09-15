@@ -1,13 +1,13 @@
+const mongoose = require('mongoose');
 const DiseaseHistory = require('../models/diseaseHistoryModel'); // Adjust path as needed
 
 /**
  * @desc    Create a new disease history entry
- * @route   POST /api/history
- * @access  Private
+ * @route   POST /api/v1/history
+ * @access  Public
  */
 exports.createDiseaseHistory = async (req, res) => {
   try {
-    // Destructure all expected fields from the request body
     const {
       patientId,
       illnessName,
@@ -18,11 +18,12 @@ exports.createDiseaseHistory = async (req, res) => {
       prescribedBy,
       status,
       hospital,
+      address,   // Location field
+      location,  // GeoJSON location object
     } = req.body;
 
-    // A patientId is essential to link the history to a patient
-    if (!patientId) {
-      return res.status(400).json({ message: 'Patient ID is required.' });
+    if (!patientId || !illnessName) {
+      return res.status(400).json({ message: 'Patient ID and Illness Name are required.' });
     }
 
     const newHistoryEntry = await DiseaseHistory.create({
@@ -35,6 +36,8 @@ exports.createDiseaseHistory = async (req, res) => {
       prescribedBy,
       status,
       hospital,
+      address,
+      location,
     });
 
     res.status(201).json(newHistoryEntry);
@@ -46,13 +49,17 @@ exports.createDiseaseHistory = async (req, res) => {
 
 /**
  * @desc    Get all disease history for a specific patient
- * @route   GET /api/history/patient/:patientId
- * @access  Private
+ * @route   GET /api/v1/history/patient/:patientId
+ * @access  Public
  */
 exports.getHistoryByPatient = async (req, res) => {
   try {
+    const { patientId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+        return res.status(400).json({ message: 'Invalid patient ID format.' });
+    }
     const history = await DiseaseHistory.find({ patientId: req.params.patientId })
-      .populate('prescribedBy', 'fullName username specialization') // Get doctor's details
+      .populate('prescribedBy', 'name') // Get doctor's details
       .sort({ diagnosisDate: -1 }); // Show most recent first
 
     res.status(200).json(history);
@@ -64,8 +71,8 @@ exports.getHistoryByPatient = async (req, res) => {
 
 /**
  * @desc    Update an existing disease history entry
- * @route   PUT /api/history/:id
- * @access  Private
+ * @route   PUT /api/v1/history/:id
+ * @access  Public
  */
 exports.updateDiseaseHistory = async (req, res) => {
   try {
@@ -86,16 +93,17 @@ exports.updateDiseaseHistory = async (req, res) => {
   }
 };
 
-
+/**
+ * @desc    Get a summarized disease history for a patient
+ * @route   GET /api/v1/history/patient/:patientId/summary
+ * @access  Public
+ */
 exports.getHistorySummaryByPatient = async (req, res) => {
   try {
-    // 1. Find all history records for the patient.
-    // .select() efficiently fetches only the fields we need from the database.
     const historyRecords = await DiseaseHistory.find({ patientId: req.params.patientId })
       .select('illnessName diagnosisDate')
-      .sort({ diagnosisDate: -1 }); // Show most recent first
+      .sort({ diagnosisDate: -1 });
 
-    // 2. Transform the data to the desired format (illnessName and diagnosisYear).
     const summary = historyRecords.map(record => ({
       illnessName: record.illnessName,
       diagnosisYear: record.diagnosisDate ? record.diagnosisDate.getFullYear() : 'N/A',
@@ -104,6 +112,6 @@ exports.getHistorySummaryByPatient = async (req, res) => {
     res.status(200).json(summary);
   } catch (error) {
     console.error('Error fetching disease history summary:', error);
-    res.status(500).json({ message: 'Server error while fetching history summary.' });
-  }
+    res.status(500).json({ message: 'Server error while fetching history summary.' });
+  }
 };

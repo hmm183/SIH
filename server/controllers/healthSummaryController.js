@@ -78,3 +78,61 @@ exports.generateHealthSummary = async (req, res) => {
     });
   }
 };
+
+
+/**
+ * @desc     Answer a specific question based on a patient's full health data
+ * @route    POST /api/v1/summary/query
+ * @access   Private
+ */
+exports.queryHealthData = async (req, res) => {
+  try {
+    const { patientId, userQuery } = req.body;
+    if (!patientId || !userQuery) {
+      return res.status(400).json({ error: 'Patient ID and user query are required.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(patientId)) {
+      return res.status(400).json({ error: 'Invalid Patient ID format.' });
+    }
+
+    // 1. Fetch all patient data to build context
+    const patient = await Patient.findById(patientId);
+    if (!patient) return res.status(404).json({ error: 'Patient not found.' });
+    
+    // Using the controllers/routes you provided
+    const history = await DiseaseHistory.find({ patientId }).sort({ diagnosisDate: -1 });
+    const prescriptions = await Prescription.find({ patientId }).sort({ date: -1 });
+    const readings = await DailyReading.find({ patientId }).sort({ date: -1 }).limit(30);
+
+    // 2. Engineer a detailed prompt for the AI
+    let context = `CONTEXT: You are a helpful medical AI assistant. Analyze the following health data for patient "${patient.fullName}".\n\n`;
+    context += `PATIENT DETAILS:\n- Age: ${patient.age}\n- Gender: ${patient.gender}\n\n`;
+    
+    if (history.length > 0) {
+      context += "DISEASE HISTORY:\n" + history.map(h => `- ${h.illnessName} (Diagnosed: ${new Date(h.diagnosisDate).toLocaleDateString()}, Status: ${h.status})`).join('\n') + "\n\n";
+    }
+    if (prescriptions.length > 0) {
+      const currentMeds = prescriptions.flatMap(p => p.medicines).filter(m => m.status === 'current');
+      if (currentMeds.length > 0) {
+        context += "CURRENT MEDICATIONS:\n" + currentMeds.map(m => `- ${m.name} ${m.dosage}`).join('\n') + "\n\n";
+      }
+    }
+    if (readings.length > 0) {
+        context += "RECENT VITALS (last 30 readings):\n" + readings.map(r => `- Date: ${new Date(r.date).toLocaleString()}, BP: ${r.bloodPressure.systolic}/${r.bloodPressure.diastolic}, Pulse: ${r.pulseRate}`).join('\n') + "\n\n";
+    }
+
+    const prompt = `${context}QUESTION: Based *only* on the provided health data, answer the doctor's question concisely: "${userQuery}"`;
+
+    // 3. Call the Gemini API
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const answer = result.response.text();
+
+    // 4. Send the answer back
+    res.status(200).json({ answer });
+
+  } catch (error) {
+    console.error("Error in queryHealthData:", error);
+    res.status(500).json({ error: "Failed to query health data.", details: error.message });
+  }
+};

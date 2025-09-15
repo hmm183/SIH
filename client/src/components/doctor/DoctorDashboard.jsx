@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { UserCheck, Users, Activity, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// A custom hook for debouncing
+// Define the full base URL for your backend API
+const BACKEND_URL = 'http://localhost:5000';
+
+// A custom hook for debouncing to prevent excessive API calls while typing
 const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-  React.useEffect(() => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
@@ -19,51 +22,68 @@ const useDebounce = (value, delay) => {
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
-  const [stats, setStats] = React.useState({ patientsBeingCured: 0, patientsDischarged: 0, totalPatients: 0 });
-  const [patients, setPatients] = React.useState([]);
+  const [stats, setStats] = useState({ patientsBeingCured: 0, patientsDischarged: 0, totalPatients: 0 });
+  const [patients, setPatients] = useState([]);
   
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState([]);
-  const [isSearching, setIsSearching] = React.useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); // 300ms delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Fetch stats and patient lists on component load
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
-      // NOTE: Replace with your actual backend URL and add auth headers
-      const token = localStorage.getItem('authToken'); 
+      try {
+        const token = localStorage.getItem('authToken'); 
+        const headers = { 
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        };
 
-      // Fetch statistics
-      const statsRes = await fetch('/api/v1/patients/statistics', { headers: { 'Authorization': token } });
-      const statsData = await statsRes.json();
-      if (statsData.success) setStats(statsData.statistics);
+        // Fetch statistics
+        const statsRes = await fetch(`${BACKEND_URL}/api/v1/patients/statistics`, { headers });
+        if (!statsRes.ok) throw new Error('Failed to fetch stats');
+        const statsData = await statsRes.json();
+        if (statsData.success) setStats(statsData.statistics);
 
-      // Fetch patients "under treatment"
-      const patientsRes = await fetch('/api/v1/patients?status=under treatment', { headers: { 'Authorization': token } });
-      const patientsData = await patientsRes.json();
-      setPatients(patientsData);
+        // Fetch patients "under treatment"
+        const patientsRes = await fetch(`${BACKEND_URL}/api/v1/patients?status=under treatment`, { headers });
+        if (!patientsRes.ok) throw new Error('Failed to fetch patients');
+        const patientsData = await patientsRes.json();
+        setPatients(patientsData);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        // Optionally set an error state to show a message to the user
+      }
     };
     fetchData();
   }, []);
 
   // Effect for handling debounced search
-  React.useEffect(() => {
+  useEffect(() => {
     const searchPatients = async () => {
       if (debouncedSearchTerm.length < 2) {
         setSearchResults([]);
         return;
       }
       setIsSearching(true);
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`/api/v1/patients/search?q=${debouncedSearchTerm}`, { headers: { 'Authorization': token } });
-      const data = await res.json();
-      setSearchResults(data);
-      setIsSearching(false);
+      try {
+        const token = localStorage.getItem('authToken');
+        const res = await fetch(`${BACKEND_URL}/api/v1/patients/search?q=${debouncedSearchTerm}`, { 
+          headers: { 'Authorization': token } 
+        });
+        if (!res.ok) throw new Error('Search failed');
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (error) {
+        console.error("Error searching patients:", error);
+      } finally {
+        setIsSearching(false);
+      }
     };
     searchPatients();
   }, [debouncedSearchTerm]);
-
 
   const handleSelectPatient = (patient) => {
     navigate(`/patient/${patient._id}`);
@@ -75,13 +95,14 @@ export default function DoctorDashboard() {
     { title: "Patients Discharged", value: stats.patientsDischarged, icon: <UserCheck size={42}/>, color: "from-green-500 to-green-700" },
   ];
 
+  // ... the rest of your component (the return statement with JSX) remains the same
   return (
     <div className="pt-20 p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Doctor's Dashboard</h1>
       
       {/* Search Bar */}
       <div className="relative max-w-lg mb-8">
-        <div className="flex items-center border rounded-lg overflow-hidden shadow-sm">
+        <div className="flex items-center border rounded-lg overflow-hidden shadow-sm bg-white">
           <Search className="ml-3 text-gray-500" size={20} />
           <input
             type="text"
@@ -136,7 +157,7 @@ export default function DoctorDashboard() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {patients.map((patient) => (
+              {patients.length > 0 ? patients.map((patient) => (
                 <tr key={patient._id}>
                   <td className="px-6 py-4 whitespace-nowrap">{patient.fullName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{patient.age}</td>
@@ -152,7 +173,11 @@ export default function DoctorDashboard() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-gray-500">No patients currently under treatment.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

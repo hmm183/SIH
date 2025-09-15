@@ -44,7 +44,7 @@ function App() {
             <Route path="/patient/prescriptions" element={<PrescriptionPage />} /> 
             <Route path="/patient/readings" element={<DailyReadingsPage />} />
             <Route path="/doctor/auth" element={<DoctorAuth />} />
-            <Route path="/patient/profile/:id" element={<PatientProfile />} />
+            <Route path="/patient/:id" element={<PatientProfile />} />
             <Route path="/auth" element={<AuthPage />} />
           </Routes>
         </main>
