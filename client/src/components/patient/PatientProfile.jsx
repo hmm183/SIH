@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Pill, HeartPulse, MessageSquare, Send, History, Edit, PlusCircle, MapPin } from 'lucide-react';
+import { User, Pill, HeartPulse, MessageSquare, Send, History, Edit, PlusCircle, MapPin, Trash2 } from 'lucide-react';
 
 const BACKEND_URL = 'http://localhost:5000';
 
@@ -93,7 +93,7 @@ const AddHistoryModal = ({ patientId, onClose, onSave }) => {
     };
 
     const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) return alert("Geolocation is not supported.");
+        if (!navigator.geolocation) return alert("Geolocation is not supported by your browser.");
         setIsLocating(true);
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
@@ -123,7 +123,9 @@ const AddHistoryModal = ({ patientId, onClose, onSave }) => {
                         <label className="block text-sm font-medium">Location / Address</label>
                         <div className="flex items-center">
                             <input type="text" value={addressSearch} onChange={(e) => setAddressSearch(e.target.value)} placeholder="Search for an address" className="mt-1 block w-full px-3 py-2 border rounded-l-md" />
-                            <button onClick={handleGetCurrentLocation} disabled={isLocating} className="bg-blue-500 text-white p-2 mt-1 rounded-r-md"><MapPin size={20}/></button>
+                            <button onClick={handleGetCurrentLocation} disabled={isLocating} className="bg-blue-500 text-white p-2.5 mt-1 rounded-r-md disabled:bg-blue-300">
+                                <MapPin size={20}/>
+                            </button>
                         </div>
                         {searchResults.length > 0 && (
                             <ul className="absolute w-full mt-1 bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto z-20">
@@ -146,6 +148,60 @@ const AddHistoryModal = ({ patientId, onClose, onSave }) => {
                 <div className="mt-6 flex justify-end space-x-3">
                     <button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md">Cancel</button>
                     <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded-md">Save</button>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+// --- Add Medicine Modal Component ---
+const AddMedicineModal = ({ prescriptionId, onClose, onSave }) => {
+    const [formData, setFormData] = useState({ name: '', dosage: '', frequency: '', duration: '' });
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSave = () => {
+        if (!formData.name.trim()) return alert('Medicine name is required.');
+        onSave(prescriptionId, formData);
+    };
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+                <h2 className="text-2xl font-bold mb-4">Add New Medicine</h2>
+                <div className="space-y-4">
+                    <input type="text" name="name" placeholder="Medicine Name (e.g., Paracetamol)" value={formData.name} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="dosage" placeholder="Dosage (e.g., 500mg)" value={formData.dosage} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="frequency" placeholder="Frequency (e.g., Twice a day)" value={formData.frequency} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="duration" placeholder="Duration (e.g., 5 days)" value={formData.duration} onChange={handleChange} className="w-full p-2 border rounded"/>
+                </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                    <button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md">Cancel</button>
+                    <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded-md">Add Medicine</button>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+// --- Edit Medicine Modal Component ---
+const EditMedicineModal = ({ medicine, prescriptionId, onClose, onSave }) => {
+    const [formData, setFormData] = useState({ name: medicine.name, dosage: medicine.dosage || '', frequency: medicine.frequency || '', duration: medicine.duration || '' });
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSave = () => {
+        if (!formData.name.trim()) return alert('Medicine name is required.');
+        onSave(prescriptionId, medicine._id, formData);
+    };
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+                <h2 className="text-2xl font-bold mb-4">Edit Medicine</h2>
+                <div className="space-y-4">
+                    <input type="text" name="name" placeholder="Medicine Name" value={formData.name} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="dosage" placeholder="Dosage" value={formData.dosage} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="frequency" placeholder="Frequency" value={formData.frequency} onChange={handleChange} className="w-full p-2 border rounded"/>
+                    <input type="text" name="duration" placeholder="Duration" value={formData.duration} onChange={handleChange} className="w-full p-2 border rounded"/>
+                </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                    <button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md">Cancel</button>
+                    <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded-md">Save Changes</button>
                 </div>
             </motion.div>
         </div>
@@ -197,7 +253,7 @@ const Chatbot = ({ patientId }) => {
             </div>
             <div className="flex">
                 <input type="text" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="e.g., Summarize current medications..." onKeyPress={(e) => e.key === 'Enter' && handleSend()} className="w-full p-2 border rounded-l-lg outline-none" />
-                <button onClick={handleSend} disabled={isLoading} className="bg-indigo-600 text-white px-4 rounded-r-lg"><Send/></button>
+                <button onClick={handleSend} disabled={isLoading} className="bg-indigo-600 text-white px-4 rounded-r-lg disabled:bg-indigo-400"><Send/></button>
             </div>
         </div>
     );
@@ -211,13 +267,18 @@ export default function PatientProfile() {
     const [readings, setReadings] = useState([]);
     const [history, setHistory] = useState([]);
     const [error, setError] = useState('');
+    
+    // State for modals
     const [editingHistory, setEditingHistory] = useState(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isAddingMedicine, setIsAddingMedicine] = useState(null); // Stores prescriptionId
+    const [editingMedicine, setEditingMedicine] = useState(null); // Stores { prescriptionId, medicine }
 
     useEffect(() => {
         const fetchAllData = async () => {
             const headers = { 'Content-Type': 'application/json' };
             try {
+                // Adjust API paths if your server uses a prefix like /api/v1
                 const [patientRes, presRes, readRes, histRes] = await Promise.all([
                     fetch(`${BACKEND_URL}/api/v1/patients/${id}`, { headers }),
                     fetch(`${BACKEND_URL}/api/v1/prescriptions/patient/${id}`, { headers }),
@@ -236,6 +297,7 @@ export default function PatientProfile() {
         if (id) fetchAllData();
     }, [id]);
 
+    // --- History Handlers ---
     const handleSaveHistory = async (historyId, updatedData) => {
         try {
             const res = await fetch(`${BACKEND_URL}/api/v1/history/${historyId}`, {
@@ -267,15 +329,71 @@ export default function PatientProfile() {
             alert(err.message);
         }
     };
+
+    // --- Medicine Handlers ---
+    const updatePrescriptionInState = (updatedPrescription) => {
+        setPrescriptions(prescriptions.map(p => p._id === updatedPrescription._id ? updatedPrescription : p));
+    };
+
+    const handleAddMedicine = async (prescriptionId, medicineData) => {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(medicineData),
+            });
+            if (!res.ok) throw new Error('Failed to add medicine.');
+            const updatedPrescription = await res.json();
+            updatePrescriptionInState(updatedPrescription);
+            setIsAddingMedicine(null);
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const handleUpdateMedicine = async (prescriptionId, medicineId, medicineData) => {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines/${medicineId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(medicineData),
+            });
+            if (!res.ok) throw new Error('Failed to update medicine.');
+            const updatedPrescription = await res.json();
+            updatePrescriptionInState(updatedPrescription);
+            setEditingMedicine(null);
+        } catch (err) {
+            alert(err.message);
+        }
+    };
     
+    const handleMedicineStatusChange = async (prescriptionId, medicineId, newStatus) => {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/v1/prescriptions/medicines/${prescriptionId}/${medicineId}/status`, {
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (!res.ok) throw new Error('Failed to update status.');
+            const updatedPrescription = await res.json();
+            updatePrescriptionInState(updatedPrescription);
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
     if (error) return <div className="pt-20 p-6 text-red-500 text-center">{error}</div>;
     if (!patient) return <div className="pt-20 p-6 text-center">Loading patient profile...</div>;
 
     return (
         <div className="pt-20 p-6 bg-gray-50 min-h-screen">
+            {/* --- Modals --- */}
             {isAddModalOpen && <AddHistoryModal patientId={id} onClose={() => setIsAddModalOpen(false)} onSave={handleAddNewHistory} />}
             {editingHistory && <EditHistoryModal historyItem={editingHistory} onClose={() => setEditingHistory(null)} onSave={handleSaveHistory} />}
+            {isAddingMedicine && <AddMedicineModal prescriptionId={isAddingMedicine} onClose={() => setIsAddingMedicine(null)} onSave={handleAddMedicine} />}
+            {editingMedicine && <EditMedicineModal prescriptionId={editingMedicine.prescriptionId} medicine={editingMedicine.medicine} onClose={() => setEditingMedicine(null)} onSave={handleUpdateMedicine} />}
 
+            {/* --- Patient Header --- */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-6 rounded-2xl shadow-lg mb-6">
                 <div className="flex items-center">
                     <User size={48} className="text-indigo-500 mr-4"/>
@@ -287,7 +405,8 @@ export default function PatientProfile() {
             </motion.div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg-col-span-2 space-y-6">
+                    {/* --- Disease History Section --- */}
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 rounded-2xl shadow-lg">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold text-gray-700 flex items-center"><History className="mr-2"/> Disease History</h3>
@@ -307,35 +426,66 @@ export default function PatientProfile() {
                                         <Edit size={18} />
                                     </button>
                                 </div>
-                            )) : <p>No disease history found.</p>}
+                            )) : <p className="text-gray-500">No disease history found.</p>}
                         </div>
                     </motion.div>
                 
+                    {/* --- Prescriptions Section --- */}
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="bg-white p-6 rounded-2xl shadow-lg">
                         <h3 className="text-xl font-bold text-gray-700 mb-4 flex items-center"><Pill className="mr-2"/> Prescriptions</h3>
-                         {prescriptions.length > 0 ? prescriptions.map(p => (
-                            <div key={p._id} className="mb-4 p-3 border-l-4 border-green-500 bg-green-50">
-                                <p className="font-semibold text-green-800">Prescribed on {new Date(p.date).toLocaleDateString()}</p>
-                                <ul className="list-disc list-inside mt-2 text-gray-700">
-                                    {p.medicines.map(med => <li key={med._id}>{med.name} - {med.dosage} ({med.status})</li>)}
+                        {prescriptions.length > 0 ? prescriptions.map(p => (
+                            <div key={p._id} className="mb-4 p-4 border rounded-lg shadow-sm">
+                                <div className="flex justify-between items-center border-b pb-2 mb-3">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">Prescribed on {new Date(p.date).toLocaleDateString()}</p>
+                                        {p.doctorId && <p className="text-sm text-gray-500">by Dr. {p.doctorId.fullName || 'N/A'}</p>}
+                                    </div>
+                                    <button onClick={() => setIsAddingMedicine(p._id)} className="flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-semibold hover:bg-indigo-200">
+                                        <PlusCircle size={16} className="mr-1"/> Add Medicine
+                                    </button>
+                                </div>
+                                <ul className="space-y-3">
+                                    {p.medicines.map(med => (
+                                        <li key={med._id} className="flex items-center justify-between text-gray-700 hover:bg-gray-50 p-2 rounded-md">
+                                            <div>
+                                                <p className="font-medium">{med.name} <span className="text-gray-500 font-normal">- {med.dosage}</span></p>
+                                                <p className="text-sm text-gray-500">{med.frequency} for {med.duration}</p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <select 
+                                                    value={med.status}
+                                                    onChange={(e) => handleMedicineStatusChange(p._id, med._id, e.target.value)}
+                                                    className={`text-sm rounded-full px-2 py-0.5 outline-none cursor-pointer ${med.status === 'current' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+                                                >
+                                                    <option value="current">Current</option>
+                                                    <option value="past">Past</option>
+                                                </select>
+                                                <button onClick={() => setEditingMedicine({ prescriptionId: p._id, medicine: med })} className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-gray-100 rounded-full">
+                                                    <Edit size={16} />
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                    {p.medicines.length === 0 && <p className="text-sm text-gray-500 p-2">No medicines in this prescription.</p>}
                                 </ul>
                             </div>
-                        )) : <p>No prescriptions found.</p>}
+                        )) : <p className="text-gray-500">No prescriptions found.</p>}
                     </motion.div>
                     
+                    {/* --- Daily Vitals Section --- */}
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="bg-white p-6 rounded-2xl shadow-lg">
                        <h3 className="text-xl font-bold text-gray-700 mb-4 flex items-center"><HeartPulse className="mr-2"/> Daily Vitals</h3>
                        <div className="max-h-60 overflow-y-auto">
                             {readings.length > 0 ? readings.map(r => (
                                 <p key={r._id} className="border-b py-1 text-gray-700">
-                                    <span className="font-semibold">{new Date(r.date).toLocaleString()}:</span> BP {r.bloodPressure.systolic}/{r.bloodPressure.diastolic}, Pulse {r.pulseRate}
+                                    <span className="font-semibold">{new Date(r.date).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}:</span> BP {r.bloodPressure.systolic}/{r.bloodPressure.diastolic}, Pulse {r.pulseRate}
                                 </p>
-                            )) : <p>No daily readings recorded.</p>}
-                        </div>
+                            )) : <p className="text-gray-500">No daily readings recorded.</p>}
+                       </div>
                     </motion.div>
                 </div>
 
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="lg:col-span-1">
                    <Chatbot patientId={id} />
                 </motion.div>
             </div>

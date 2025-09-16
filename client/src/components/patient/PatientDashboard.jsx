@@ -336,7 +336,7 @@ export default function PatientDashboard() {
         sourceData: parsed.source,
       };
 
-      setHealthSummary(newSummary); // Update the original summary first
+      setHealthSummary(parsed); // Update the original summary first
       setShowPrompt(false);
     } catch (err) {
       console.error('generate summary network error:', err);

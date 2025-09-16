@@ -1,203 +1,211 @@
-const mongoose = require("mongoose"); // Import mongoose to validate ObjectIDs
+const mongoose = require('mongoose');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const Patient = require("../models/patientModel");
-const DiseaseHistory = require("../models/diseaseHistoryModel");
-const Prescription = require("../models/prescriptionModel");
-const DailyReading = require("../models/dailyReadingModel");
+const Patient = require('../models/patientModel');
+const DiseaseHistory = require('../models/diseaseHistoryModel');
+const Prescription = require('../models/prescriptionModel');
+const DailyReading = require('../models/dailyReadingModel');
+const HealthSummary = require('../models/healthSummaryModel');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// --- Helper function to delay execution ---
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// --- Wrapper for Gemini API call with retry logic ---
+async function generateContentWithRetry(model, prompt, maxRetries = 3) {
+  let attempt = 0;
+  let delay = 1000; // Start with 1 second
+
+  while (attempt < maxRetries) {
+    try {
+      const result = await model.generateContent(prompt);
+      return result; // Success
+    } catch (error) {
+      // Check for API overload or temporary errors
+      if (error.status === 503 || (error.message && error.message.includes('503'))) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          console.error(`Gemini API failed after ${maxRetries} attempts due to overload.`);
+          throw error; // Throw the final error after all retries
+        }
+        console.warn(`Gemini API overloaded. Retrying in ${delay / 1000}s... (Attempt ${attempt})`);
+        await sleep(delay);
+        delay *= 2; // Exponential backoff
+      } else {
+        // For other errors (like 404 Not Found for the model), fail immediately
+        console.error("A non-retriable Gemini API error occurred:", error.message);
+        throw error;
+      }
+    }
+  }
+}
+
 /**
- * @desc    Generate a health summary using real patient data
- * @route   POST /api/v1/summary/generate
- * @access  Public (No Middleware)
+ * @desc    Get the saved health summary for a patient
+ * @route   GET /api/v1/summary/patient/:patientId
+ * @access  Public
  */
-exports.generateHealthSummary = async (req, res) => {
+exports.getHealthSummary = async (req, res) => {
   try {
-    const { patientId } = req.body;
-    if (!patientId) {
-      return res.status(400).json({ error: "Patient ID is required." });
-    }
-
-    // --- FIX 1: Validate the Patient ID format before querying ---
+    const { patientId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(patientId)) {
-      return res
-        .status(400)
-        .json({ error: "The provided Patient ID is not a valid format." });
+      return res.status(400).json({ error: 'Invalid Patient ID format.' });
     }
-
-    // --- 1. Fetch all relevant health data ---
-    const patient = await Patient.findById(patientId);
-    if (!patient) {
-      return res.status(404).json({ error: "Patient not found." });
+    const summary = await HealthSummary.findOne({ patientId });
+    if (!summary) {
+      return res.status(404).json({ message: 'No health summary found for this patient.' });
     }
-
-    const history = await DiseaseHistory.find({ patientId }).sort({
-      diagnosisDate: -1,
-    });
-    const prescriptions = await Prescription.find({ patientId }).sort({
-      date: -1,
-    });
-    const latestReading = await DailyReading.findOne({ patientId }).sort({
-      date: -1,
-    });
-
-    // --- 2. Construct a detailed prompt from the real data ---
-    let ageText = "N/A";
-    if (patient.dateOfBirth) {
-      const age =
-        new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear();
-      ageText = `${age} years old`;
-    }
-
-    let prompt = `Generate a concise, professional health summary for a medical professional...\n`;
-    prompt += `- Name: ${patient.fullName}\n- Age: ${ageText}\n`;
-
-    // --- FIX 2: Check if latestReading exists before using it ---
-    if (latestReading && latestReading.bloodPressure) {
-      prompt += `- Latest Vitals: Blood Pressure ${latestReading.bloodPressure.systolic}/${latestReading.bloodPressure.diastolic}\n`;
-    }
-
-    if (history.length > 0) {
-      prompt +=
-        "- Known Conditions: " +
-        history.map((h) => `${h.illnessName} (${h.status})`).join(", ") +
-        "\n";
-    }
-
-    const currentMeds = prescriptions
-      .flatMap((p) => p.medicines)
-      .filter((m) => m.status === "current");
-    if (currentMeds.length > 0) {
-      prompt +=
-        "- Current Medications: " +
-        currentMeds.map((m) => `${m.name} ${m.dosage}`).join(", ");
-    } // --- 3. Call the Gemini API ---
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const summary = result.response.text(); // --- 4. Send the summary back ---
-
-    res.status(200).json({
-      source: "Gemini 1.5 Flash",
-      healthSummary: summary,
-    });
+    res.status(200).json(summary);
   } catch (error) {
-    console.error("Error in generateHealthSummary:", error);
-    // --- FIX 3: Send back a more detailed error message ---
-    res.status(500).json({
-      error: "Failed to generate health summary.",
-      details: error.message, // This will give you the specific reason for the crash
-    });
+    console.error("Error in getHealthSummary:", error);
+    res.status(500).json({ error: "Failed to retrieve health summary.", details: error.message });
   }
 };
 
 /**
- * @desc     Answer a specific question based on a patient's full health data
- * @route    POST /api/v1/summary/query
- * @access   Private
+ * @desc    Generate and SAVE a health summary using patient data
+ * @route   POST /api/v1/summary/generate
+ * @access  Public
+ */
+exports.generateHealthSummary = async (req, res) => {
+  let patient; // Define patient here to be accessible in the catch block
+  const { patientId } = req.body;
+  
+  try {
+    if (!patientId || !mongoose.Types.ObjectId.isValid(patientId)) {
+      return res.status(400).json({ error: 'A valid Patient ID is required.' });
+    }
+    
+    patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ error: 'Patient not found.' });
+    }
+    
+    const history = await DiseaseHistory.find({ patientId }).sort({ diagnosisDate: -1 });
+    const prescriptions = await Prescription.find({ patientId }).sort({ date: -1 });
+    const latestReading = await DailyReading.findOne({ patientId }).sort({ date: -1 });
+
+    let dataContext = `Patient Name: ${patient.fullName}\nAge: ${patient.age}\nGender: ${patient.gender}\n`;
+    if (latestReading?.bloodPressure) {
+      dataContext += `Latest Vitals: Blood Pressure ${latestReading.bloodPressure.systolic}/${latestReading.bloodPressure.diastolic} mmHg, Pulse: ${latestReading.pulseRate} bpm.\n`;
+    }
+    if (history.length > 0) {
+      dataContext += "Known Conditions: " + history.map(h => `${h.illnessName} (Status: ${h.status})`).join(', ') + ".\n";
+    }
+    const currentMeds = prescriptions.flatMap(p => p.medicines).filter(m => m.status === 'current');
+    if (currentMeds.length > 0) {
+      dataContext += "Current Medications: " + currentMeds.map(m => `${m.name} (${m.dosage})`).join(', ') + ".\n";
+    }
+
+    const prompt = `
+      You are a senior medical analyst. Synthesize the provided data into a comprehensive health summary.
+      Structure the summary into sections: "Overview", "Key Medical History", "Current Status", and "Medication Review".
+      Present it in a cohesive, paragraph-based format.
+
+      Data:
+      ---
+      ${dataContext}
+      ---
+    `;
+    
+    // --- FIXED: Reverted to the flash model you have access to ---
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await generateContentWithRetry(model, prompt);
+    const summaryText = result.response.text();
+
+    const summaryData = {
+      patientId,
+      summaryContent: summaryText,
+      generatedAt: new Date(),
+      sourceData: `AI-Generated. Prompt included: ${prompt.substring(0, 200)}...`
+    };
+
+    const savedSummary = await HealthSummary.findOneAndUpdate({ patientId }, summaryData, { new: true, upsert: true });
+    res.status(200).json(savedSummary);
+
+  } catch (error) {
+    console.error("Error in generateHealthSummary:", error.message);
+    
+    // --- FALLBACK MECHANISM: If AI fails, generate a basic summary ---
+    console.warn("AI generation failed. Creating a basic fallback summary.");
+    try {
+        if (!patient) {
+             // Ensure patient is loaded before creating a fallback
+            patient = await Patient.findById(patientId);
+            if (!patient) return res.status(404).json({ error: 'Patient not found for fallback.' });
+        }
+
+        const fallbackSummaryContent = `
+            **Overview**: A basic health summary for ${patient.fullName}, a ${patient.age}-year-old ${patient.gender}.
+            **Medical History**: Includes ${await DiseaseHistory.find({ patientId }).then(h => h.length ? h.map(item => item.illnessName).join(', ') : 'no specified conditions')}.
+            **Medications**: Current medications include: ${await Prescription.find({ patientId }).then(p => {
+                const meds = p.flatMap(pres => pres.medicines).filter(m => m.status === 'current');
+                return meds.length ? meds.map(m => `${m.name} ${m.dosage}`).join(', ') : 'None listed';
+            })}.
+        `.replace(/\s+/g, ' ').trim();
+
+        const summaryData = {
+          patientId: patient._id,
+          summaryContent: fallbackSummaryContent,
+          generatedAt: new Date(),
+          sourceData: "Fallback summary generated due to AI service unavailability or error."
+        };
+
+        const savedSummary = await HealthSummary.findOneAndUpdate({ patientId: patient._id }, summaryData, { new: true, upsert: true });
+        res.status(200).json(savedSummary);
+
+    } catch (fallbackError) {
+        console.error("Error creating fallback summary:", fallbackError);
+        res.status(500).json({ error: "Failed to generate health summary, and the fallback also failed.", details: fallbackError.message });
+    }
+  }
+};
+
+/**
+ * @desc    Answer a specific question based on a patient's health data
+ * @route   POST /api/v1/summary/query
+ * @access  Public
  */
 exports.queryHealthData = async (req, res) => {
   try {
     const { patientId, userQuery } = req.body;
-    if (!patientId || !userQuery) {
-      return res
-        .status(400)
-        .json({ error: "Patient ID and user query are required." });
-    }
-    if (!mongoose.Types.ObjectId.isValid(patientId)) {
-      return res.status(400).json({ error: "Invalid Patient ID format." });
+    if (!patientId || !userQuery || !mongoose.Types.ObjectId.isValid(patientId)) {
+      return res.status(400).json({ error: 'Valid Patient ID and user query are required.' });
     }
 
-    // 1. Fetch all patient data to build context
     const patient = await Patient.findById(patientId);
-    if (!patient) return res.status(404).json({ error: "Patient not found." });
+    if (!patient) return res.status(404).json({ error: 'Patient not found.' });
+    
+    const history = await DiseaseHistory.find({ patientId }).sort({ diagnosisDate: -1 });
+    const prescriptions = await Prescription.find({ patientId }).sort({ date: -1 });
+    const readings = await DailyReading.find({ patientId }).sort({ date: -1 }).limit(30);
 
-    // Using the controllers/routes you provided
-    const history = await DiseaseHistory.find({ patientId }).sort({
-      diagnosisDate: -1,
-    });
-    const prescriptions = await Prescription.find({ patientId }).sort({
-      date: -1,
-    });
-    const readings = await DailyReading.find({ patientId })
-      .sort({ date: -1 })
-      .limit(30);
-
-    // 2. Engineer a detailed prompt for the AI
-    let context = `CONTEXT: You are a helpful medical AI assistant. Analyze the following health data for patient "${patient.fullName}".\n\n`;
+    let context = `CONTEXT: You are a helpful medical AI assistant. Analyze the health data for patient "${patient.fullName}".\n\n`;
     context += `PATIENT DETAILS:\n- Age: ${patient.age}\n- Gender: ${patient.gender}\n\n`;
-
+    
     if (history.length > 0) {
-      context +=
-        "DISEASE HISTORY:\n" +
-        history
-          .map(
-            (h) =>
-              `- ${h.illnessName} (Diagnosed: ${new Date(
-                h.diagnosisDate
-              ).toLocaleDateString()}, Status: ${h.status})`
-          )
-          .join("\n") +
-        "\n\n";
+      context += "DISEASE HISTORY:\n" + history.map(h => `- ${h.illnessName} (Diagnosed: ${new Date(h.diagnosisDate).toLocaleDateString()}, Status: ${h.status})`).join('\n') + "\n\n";
     }
-    if (prescriptions.length > 0) {
-      const currentMeds = prescriptions
-        .flatMap((p) => p.medicines)
-        .filter((m) => m.status === "current");
-      if (currentMeds.length > 0) {
-        context +=
-          "CURRENT MEDICATIONS:\n" +
-          currentMeds.map((m) => `- ${m.name} ${m.dosage}`).join("\n") +
-          "\n\n";
-      }
+    const currentMeds = prescriptions.flatMap(p => p.medicines).filter(m => m.status === 'current');
+    if (currentMeds.length > 0) {
+        context += "CURRENT MEDICATIONS:\n" + currentMeds.map(m => `- ${m.name} ${m.dosage}`).join('\n') + "\n\n";
     }
     if (readings.length > 0) {
-      context +=
-        "RECENT VITALS (last 30 readings):\n" +
-        readings
-          .map(
-            (r) =>
-              `- Date: ${new Date(r.date).toLocaleString()}, BP: ${
-                r.bloodPressure.systolic
-              }/${r.bloodPressure.diastolic}, Pulse: ${r.pulseRate}`
-          )
-          .join("\n") +
-        "\n\n";
+        context += "RECENT VITALS:\n" + readings.map(r => `- Date: ${new Date(r.date).toLocaleString()}, BP: ${r.bloodPressure.systolic}/${r.bloodPressure.diastolic}, Pulse: ${r.pulseRate}`).join('\n') + "\n\n";
     }
 
-    const prompt = `
-You are a professional medical AI assistant. 
-Always follow this response structure:
+    const prompt = `${context}QUESTION: Based *only* on the provided health data, answer the doctor's question concisely: "${userQuery}"`;
 
-1. Patient Summary: Give a very concise health summary based only on the patient's records.  
-2. Disease Insights: Briefly explain the patient's diseases/conditions.  
-   - If the doctor asks about a specific disease, focus on that disease: explain what it is, risks, and patient-specific history.  
-3. Direct Answer: Respond to the doctor’s question clearly, briefly, and to the point.  
-
-⚠️ Important:  
-- Be concise, avoid long explanations.  
-- Only use information from the patient's records for patient-specific details.  
-- If the doctor asks about a disease not in the records, provide only a short general overview of the disease.  
-
-Here is the patient context data:
-
-${context}
-
-Doctor's Question: "${userQuery}"
-`;
-
-    // 3. Call the Gemini API
+    // --- FIXED: Reverted to the flash model you have access to ---
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithRetry(model, prompt);
     const answer = result.response.text();
 
-    // 4. Send the answer back
     res.status(200).json({ answer });
+
   } catch (error) {
     console.error("Error in queryHealthData:", error);
-    res
-      .status(500)
-      .json({ error: "Failed to query health data.", details: error.message });
+    res.status(500).json({ error: "Failed to query health data after multiple retries.", details: error.message });
   }
 };
+

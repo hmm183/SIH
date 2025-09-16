@@ -1,15 +1,21 @@
 const express = require('express');
 const router = express.Router();
-
 const {
-  generateHealthSummary,
-  queryHealthData
-} = require('../controllers/healthSummaryController'); // Adjust path if needed
+    getHealthSummary,
+    generateHealthSummary,
+    queryHealthData
+} = require('../controllers/healthSummaryController'); // Adjust path as needed
 
-// No middleware is used.
-// This route calls the controller that uses real patient data.
+// A router to handle authentication would go here
+// const { protect } = require('../middleware/authMiddleware');
+
+// GET a patient's saved health summary -> THIS FIXES THE 404 ERROR
+router.get('/patient/:patientId', getHealthSummary);
+
+// POST to generate a new health summary
 router.post('/generate', generateHealthSummary);
+
+// POST to ask a specific question (query)
 router.post('/query', queryHealthData);
 
 module.exports = router;
-
