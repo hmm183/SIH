@@ -115,3 +115,53 @@ exports.getHistorySummaryByPatient = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching history summary.' });
   }
 };
+
+exports.getDiseaseHotspots = async (req, res) => {
+  try {
+    const { disease, lng, lat, radius } = req.query;
+
+    // --- 1. Validate Input ---
+    if (!disease || !lng || !lat) {
+      return res.status(400).json({ 
+        message: 'Missing required query parameters: disease, lng (longitude), and lat (latitude).' 
+      });
+    }
+
+    const longitude = parseFloat(lng);
+    const latitude = parseFloat(lat);
+    const searchRadiusKm = parseFloat(radius) || 10;
+
+    if (isNaN(longitude) || isNaN(latitude) || isNaN(searchRadiusKm)) {
+        return res.status(400).json({ message: 'Invalid geographic coordinates or radius.' });
+    }
+    const radiusInMeters = searchRadiusKm * 1000;
+
+    // --- 2. Perform Geospatial Query ---
+    const hotspots = await DiseaseHistory.find({
+      illnessName: { $regex: new RegExp(disease, 'i') },
+      
+      location: {
+        // ✅ CHANGED THIS LINE: Use $nearSphere for accurate spherical queries
+        $nearSphere: { 
+          $geometry: {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          },
+          $maxDistance: radiusInMeters,
+        },
+      },
+    }).select('location illnessName'); // Only select the location field
+
+    // --- 3. Send Response ---
+    res.status(200).json({
+      success: true, // It's good practice to include a success flag
+      message: `Found ${hotspots.length} hotspots for '${disease}' within ${searchRadiusKm}km.`,
+      count: hotspots.length,
+      data: hotspots,
+    });
+
+  } catch (error) {
+    console.error('Error fetching disease hotspots:', error);
+    res.status(500).json({ message: 'Server error while fetching hotspots.' });
+  }
+};

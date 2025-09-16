@@ -24,7 +24,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const emergencyRoutes = require("./routes/emergencyRoutes");
 const dailyReadingRoutes = require('./routes/dailyReadingRoutes');
 const verifyRoutes = require('./routes/verifyRoutes');
-
+const hotspotRoutes = require("./routes/hotspotRoutes");
 
 const app = express();
 
@@ -45,8 +45,18 @@ app.use("/api/v1/summary", healthSummaryRoutes);
 app.use('/api/v1/readings', dailyReadingRoutes);
 app.use("/api/v1/verify", verifyRoutes);
 app.use("/api/v1", translationRoutes);
+app.use("/api/v1/hotspots", hotspotRoutes);
 
 const PORT = process.env.PORT || 5000;
+
+app.get('/api/v1/config/maps', (req, res) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    console.error('Google Maps API Key not found in .env file.');
+    return res.status(500).json({ message: 'Server configuration error.' });
+  }
+  res.status(200).json({ apiKey });
+});
 
 app.listen(PORT, () => {
   console.log(

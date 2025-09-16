@@ -6,7 +6,12 @@ const {
   getHistoryByPatient,
   updateDiseaseHistory,
   getHistorySummaryByPatient,
+  getDiseaseHotspots
 } = require('../controllers/historyController');
+
+// --- NEW: Route to get disease hotspot locations ---
+// Example: GET /api/v1/history/hotspots?disease=Flu&lat=28.6139&lng=77.2090&radius=10
+router.get('/hotspots', getDiseaseHotspots);
 
 // POST: Create a new history entry
 router.post('/', createDiseaseHistory);

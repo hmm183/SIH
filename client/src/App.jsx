@@ -10,11 +10,11 @@ import DoctorDashboard from "./components/doctor/DoctorDashboard";
 import DiseaseHistory from "./components/patient/DiseaseHistory";
 import PrescriptionPage from './components/patient/Prescriptions';
 import AuthPage from './components/AuthPage';
-import DailyReadingsPage from './components/patient/DailyReadingsPage'; // <-- Import the new page
+import DailyReadingsPage from './components/patient/DailyReadingsPage';
 import DoctorAuth from './components/doctor/DoctorAuth';
 import PatientProfile from './components/patient/PatientProfile';
-
-
+import DiseasePrediction from "./components/common/image_test";
+import HotspotMap from "./components/common/HotspotMap";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -30,7 +30,13 @@ function App() {
 
   return (
     <Router>
-      <div className={darkMode ? "dark bg-gray-900 text-white min-h-screen flex flex-col" : "bg-white text-gray-900 min-h-screen flex flex-col"}>
+      <div
+        className={
+          darkMode
+            ? "dark bg-gray-900 text-white min-h-screen flex flex-col"
+            : "bg-white text-gray-900 min-h-screen flex flex-col"
+        }
+      >
         {/* Navbar always visible */}
         <CustomNavbar darkMode={darkMode} setDarkMode={setDarkMode} />
 
@@ -41,11 +47,24 @@ function App() {
             <Route path="/patient/dashboard" element={<PatientDashboard />} />
             <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
             <Route path="/patient/history" element={<DiseaseHistory />} />
-            <Route path="/patient/prescriptions" element={<PrescriptionPage />} /> 
+            <Route path="/patient/prescriptions" element={<PrescriptionPage />} />
             <Route path="/patient/readings" element={<DailyReadingsPage />} />
             <Route path="/doctor/auth" element={<DoctorAuth />} />
             <Route path="/patient/:id" element={<PatientProfile />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/disease-prediction" element={<DiseasePrediction />} />
+
+            {/* ✅ HotspotMap integrated with default props */}
+            <Route
+              path="/hotspot-map"
+              element={
+                <HotspotMap
+                  disease="Chickenpox"
+                  center={{ lat: 28.6139, lng: 77.2090 }} // Default: New Delhi
+                  radius={10} // km
+                />
+              }
+            />
           </Routes>
         </main>
 
