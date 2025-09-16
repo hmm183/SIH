@@ -111,7 +111,7 @@ export default function DoctorAuth() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
             
-            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('doctorAuthToken', data.token);
             setSuccess('Login successful! Redirecting...');
             setTimeout(() => navigate('/doctor/dashboard'), 1000);
         } catch (err) {

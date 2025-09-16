@@ -35,7 +35,7 @@ export default function DoctorDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('authToken'); 
+        const token = localStorage.getItem('doctorAuthToken'); 
         const headers = { 
           'Authorization': token,
           'Content-Type': 'application/json'

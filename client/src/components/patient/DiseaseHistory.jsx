@@ -164,7 +164,7 @@ export default function DiseaseHistory() {
                       {row.initialSymptoms ? row.initialSymptoms.join(', ') : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                      {row.prescribedBy?.fullName || 'N/A'}
+                      {row.prescribedBy?.name || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                       {row.hospital || 'N/A'}
