@@ -25,6 +25,9 @@ const emergencyRoutes = require("./routes/emergencyRoutes");
 const dailyReadingRoutes = require('./routes/dailyReadingRoutes');
 const verifyRoutes = require('./routes/verifyRoutes');
 const hotspotRoutes = require("./routes/hotspotRoutes");
+const emergencyContactRoutes = require('./routes/emergencyContactRoutes');
+const emergencyDoctorRoutes = require('./routes/emergencyDoctorRoutes');
+const emergencyHospitalRoutes = require('./routes/emergencyHospitalRoutes');
 
 const app = express();
 
@@ -46,6 +49,9 @@ app.use('/api/v1/readings', dailyReadingRoutes);
 app.use("/api/v1/verify", verifyRoutes);
 app.use("/api/v1", translationRoutes);
 app.use("/api/v1/hotspots", hotspotRoutes);
+app.use("/api/v1/emergency-contacts", emergencyContactRoutes);
+app.use("/api/v1/emergency-doctors", emergencyDoctorRoutes);
+app.use("/api/v1/emergency-hospitals", emergencyHospitalRoutes);
 
 const PORT = process.env.PORT || 5000;
 

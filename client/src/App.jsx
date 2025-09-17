@@ -16,6 +16,9 @@ import PatientProfile from './components/patient/PatientProfile';
 import DiseasePrediction from "./components/common/image_test";
 import HotspotMap from "./components/common/HotspotMap";
 
+// ✅ 1. Import the new component
+import EmergencyManagement from "./components/patient/EmergencyManagement";
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
@@ -54,7 +57,6 @@ function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/disease-prediction" element={<DiseasePrediction />} />
 
-            {/* ✅ HotspotMap integrated with default props */}
             <Route
               path="/hotspot-map"
               element={
@@ -65,6 +67,18 @@ function App() {
                 />
               }
             />
+
+            {/* ✅ 2. Add the new route for testing */}
+            <Route
+              path="/test-emergency"
+              element={
+                <div className="container mx-auto p-4">
+                  {/* 👇 IMPORTANT: Replace this with a REAL patient ID from your database! */}
+                  <EmergencyManagement patientId="68bae87b0ab9cc9c53ad1efc" />
+                </div>
+              }
+            />
+
           </Routes>
         </main>
 
