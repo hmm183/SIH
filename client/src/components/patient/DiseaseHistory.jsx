@@ -26,7 +26,7 @@ export default function DiseaseHistory() {
         console.warn("No authentication token found. Cannot fetch disease history.");
         return;
       }
-      
+
       try {
         const decodedToken = jwtDecode(token);
         const patientId = decodedToken.id;
@@ -49,49 +49,63 @@ export default function DiseaseHistory() {
         setLoading(false);
       }
     };
-    
+
     fetchHistory();
   }, []);
 
   // 🌐 NEW TRANSLATION LOGIC: Translate dynamic data when history or language changes
   useEffect(() => {
     const translateDynamicData = async () => {
-      if (history.length > 0 && language !== 'en') {
-        // Collect all dynamic text strings into a single array for a batch translation call
-        const textToTranslate = history.flatMap(item => {
-          const texts = [item.illnessName];
-          if (item.initialSymptoms && item.initialSymptoms.length > 0) {
-            texts.push(...item.initialSymptoms);
-          }
-          if (item.hospital) {
-            texts.push(item.hospital); // ✅ Add hospital name to the list
-          }
-          return texts;
-        });
-        
-        try {
-          const translatedTexts = await translateText(textToTranslate, language);
-          
-          let translatedIndex = 0;
-          const newTranslatedHistory = history.map(item => {
-            const translatedIllness = translatedTexts[translatedIndex++];
-            const translatedSymptoms = item.initialSymptoms.map(() => translatedTexts[translatedIndex++]);
-            const translatedHospital = item.hospital ? translatedTexts[translatedIndex++] : null; // ✅ Get translated hospital name
+      if (history.length === 0 || language === 'en') {
+        setTranslatedHistory(history.map(item => ({
+          ...item,
+          translatedIllnessName: item.illnessName,
+          translatedSymptoms: item.initialSymptoms,
+          translatedHospital: item.hospital,
+          translatedDoctorName: item.prescribedBy?.name || 'N/A'
+        })));
+        return;
+      }
 
-            return {
-              ...item,
-              illnessName: translatedIllness,
-              initialSymptoms: translatedSymptoms,
-              hospital: translatedHospital, // ✅ Update the hospital name in the new state
-            };
-          });
-          setTranslatedHistory(newTranslatedHistory);
-        } catch (error) {
-          console.error("Translation error for dynamic data:", error);
-          setTranslatedHistory(history); // Fallback to original data on error
-        }
-      } else {
-        setTranslatedHistory(history); // Use original data if language is English
+      // Collect all dynamic text strings into a single array for a batch translation call
+      const textToTranslate = history.flatMap(item => {
+        const texts = [
+          item.illnessName,
+          ...item.initialSymptoms
+        ];
+        if (item.hospital) texts.push(item.hospital);
+        if (item.prescribedBy?.name) texts.push(item.prescribedBy.name); // ✅ Add doctor name
+        return texts;
+      });
+
+      try {
+        const translatedTexts = await translateText(textToTranslate, language);
+
+        let translatedIndex = 0;
+        const newTranslatedHistory = history.map(item => {
+          const translatedIllness = translatedTexts[translatedIndex++];
+          const translatedSymptoms = item.initialSymptoms.map(() => translatedTexts[translatedIndex++]);
+          const translatedHospital = item.hospital ? translatedTexts[translatedIndex++] : item.hospital;
+          const translatedDoctorName = item.prescribedBy?.name ? translatedTexts[translatedIndex++] : item.prescribedBy?.name; // ✅ Get translated doctor name
+
+          return {
+            ...item,
+            translatedIllnessName: translatedIllness,
+            translatedSymptoms: translatedSymptoms,
+            translatedHospital: translatedHospital,
+            translatedDoctorName: translatedDoctorName,
+          };
+        });
+        setTranslatedHistory(newTranslatedHistory);
+      } catch (error) {
+        console.error("Translation error for dynamic data:", error);
+        setTranslatedHistory(history.map(item => ({
+          ...item,
+          translatedIllnessName: item.illnessName,
+          translatedSymptoms: item.initialSymptoms,
+          translatedHospital: item.hospital,
+          translatedDoctorName: item.prescribedBy?.name || 'N/A'
+        })));
       }
     };
 
@@ -101,7 +115,8 @@ export default function DiseaseHistory() {
   const particlesOptions = {
     background: { color: "transparent" },
     fpsLimit: 60,
-    interactivity: { events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } },
+    interactivity: {
+      events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } },
       modes: { repulse: { distance: 100 }, push: { quantity: 4 } },
     },
     particles: {
@@ -158,21 +173,25 @@ export default function DiseaseHistory() {
                       {row.diagnosisDate ? new Date(row.diagnosisDate).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 font-medium text-indigo-600 dark:text-indigo-400">
-                      {row.illnessName}
+                      {row.translatedIllnessName || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300 text-sm">
-                      {row.initialSymptoms ? row.initialSymptoms.join(', ') : 'N/A'}
+                      {row.translatedSymptoms ? row.translatedSymptoms.join(', ') : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                      {row.prescribedBy?.name || 'N/A'}
+                      {row.translatedDoctorName || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                      {row.hospital || 'N/A'}
+                      {row.translatedHospital || 'N/A'}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`capitalize px-2 py-1 text-xs font-semibold rounded-full ${
-                        row.status === 'ongoing' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800'
-                      }`}>
+                        // FIX: Compare the original status string, not the translated one
+                        row.status === 'ongoing'
+                          ? 'bg-yellow-200 text-yellow-800'
+                          : 'bg-green-200 text-green-800'
+                        }`}>
+                        {/* The text itself should still be translated */}
                         {t(row.status)}
                       </span>
                     </td>

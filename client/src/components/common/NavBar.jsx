@@ -1,10 +1,8 @@
-// Navbar where the dropdown is:
 import React, { useState } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { useLang } from "../../context/LangContext"; // ✅ import context
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
-
 
 const Navbar = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -28,9 +26,13 @@ const Navbar = () => {
     setLanguage(code); // ✅ update context
     setShowLangMenu(false);
   };
-  
+
   const redirectToAuth = () => {
     window.location.href = "/auth";
+  };
+
+  const redirectToDocAuth = () => {
+    window.location.href = "doctor/auth";
   };
 
   return (
@@ -45,33 +47,45 @@ const Navbar = () => {
 
             {/* Navbar Links */}
             <div className="hidden md:flex space-x-6 items-center">
-              <a href="/" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
-                {t('home')}
+              <a
+                href="/"
+                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
+              >
+                {t("home")}
               </a>
-              <a href="#about" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
-                {t('about')}
+              <a
+                href="#about"
+                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
+              >
+                {t("about")}
               </a>
-              <a href="#features" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
-                {t('services')}
+              <a
+                href="#features"
+                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
+              >
+                {t("services")}
               </a>
-              <a href="#contact" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
-                {t('contact')}
+              <a
+                href="#contact"
+                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
+              >
+                {t("contact")}
               </a>
 
-              {/* Doctor Sign In (redirects to /auth) */}
+              {/* Doctor Sign In */}
               <button
-                onClick={() => setShowDoctorModal(true)}
+                onClick={redirectToDocAuth}
                 className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
               >
-                {t('doctorSignIn')}
+                {t("doctorSignIn")}
               </button>
 
-              {/* Patient Sign In (redirects to /auth) */}
+              {/* Patient Sign In */}
               <button
                 onClick={redirectToAuth}
                 className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
               >
-                {t('patientSignIn')}
+                {t("patientSignIn")}
               </button>
 
               {/* Language Dropdown */}
@@ -88,7 +102,7 @@ const Navbar = () => {
                       <button
                         key={lang.value}
                         onClick={() => changeLanguage(lang.value)}
-                        className="block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 dark:text-gray-200"
+                        className="block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white"
                       >
                         {lang.label}
                       </button>
@@ -108,9 +122,16 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+
       {/* Modals */}
-      <DoctorModal show={showDoctorModal} onClose={() => setShowDoctorModal(false)} />
-      <MigrantModal show={showMigrantModal} onClose={() => setShowMigrantModal(false)} />
+      <DoctorModal
+        show={showDoctorModal}
+        onClose={() => setShowDoctorModal(false)}
+      />
+      <MigrantModal
+        show={showMigrantModal}
+        onClose={() => setShowMigrantModal(false)}
+      />
     </>
   );
 };

@@ -14,12 +14,14 @@ export default function PrescriptionPage() {
   // Function to fetch prescriptions, can be called to refresh data
   const fetchPrescriptions = async () => {
     const token = localStorage.getItem('authToken');
+    const doctoken = localStorage.getItem('doctorAuthToken');
     if (!token) {
       setLoading(false);
       return;
     }
     try {
       const decodedToken = jwtDecode(token);
+      const docdecodedToken = jwtDecode(doctoken);
       const patientId = decodedToken.id;
       const response = await fetch(`${BACKEND_URL}/prescriptions/patient/${patientId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -94,7 +96,7 @@ export default function PrescriptionPage() {
                 <div className="flex items-center gap-2">
                   <Stethoscope className="text-gray-600 dark:text-gray-400" size={20} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {t('dr')} {p.doctorId.fullName}
+                    {t('dr')} {p.doctorId}
                   </span>
                 </div>
               </div>

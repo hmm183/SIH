@@ -1,15 +1,13 @@
-// components/patient/DailyReadingsPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { HeartPulse, Weight, Droplets, Calendar, PlusCircle, Save, XCircle, Edit, Trash2 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 
 const BACKEND_URL = 'http://localhost:5000/api/v1';
 
 export default function DailyReadingsPage() {
-  const { t } = useLang();
+  const { t, language } = useLang();
   const [patientId, setPatientId] = useState(null);
   const [readings, setReadings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +19,7 @@ export default function DailyReadingsPage() {
     diastolic: '',
     pulseRate: '',
     weightKg: '',
-    date: new Date().toISOString().slice(0, 16), // For datetime-local input
+    date: new Date().toISOString().slice(0, 16),
   });
 
   // State for editing a reading
@@ -31,7 +29,7 @@ export default function DailyReadingsPage() {
   const fetchReadings = async (pId) => {
     const token = localStorage.getItem('authToken');
     if (!pId || !token) {
-      setError('Authentication error.');
+      setError(t('authenticationError'));
       setIsLoading(false);
       return;
     }
@@ -41,9 +39,8 @@ export default function DailyReadingsPage() {
       const res = await fetch(`${BACKEND_URL}/readings/patient/${pId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error('Failed to fetch data.');
+      if (!res.ok) throw new Error(t('failedToFetchReadings'));
       const data = await res.json();
-      // Sort descending to show newest first
       setReadings(data.sort((a, b) => new Date(b.date) - new Date(a.date))); 
     } catch (err) {
       setError(err.message);
@@ -61,11 +58,11 @@ export default function DailyReadingsPage() {
         setPatientId(pId);
         fetchReadings(pId);
       } catch (err) {
-        setError('Invalid token.');
+        setError(t('invalidToken'));
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [language]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -81,34 +78,33 @@ export default function DailyReadingsPage() {
     e.preventDefault();
     const token = localStorage.getItem('authToken');
     if (!newReading.systolic || !newReading.diastolic || !newReading.pulseRate) {
-        alert('Blood pressure and pulse rate are required.');
+        alert(t('bpPulseRequired'));
         return;
     }
 
     const payload = {
-        patientId,
-        bloodPressure: {
-            systolic: Number(newReading.systolic),
-            diastolic: Number(newReading.diastolic),
-        },
-        pulseRate: Number(newReading.pulseRate),
-        weightKg: newReading.weightKg ? Number(newReading.weightKg) : undefined,
-        date: newReading.date,
+      patientId,
+      bloodPressure: {
+          systolic: Number(newReading.systolic),
+          diastolic: Number(newReading.diastolic),
+      },
+      pulseRate: Number(newReading.pulseRate),
+      weightKg: newReading.weightKg ? Number(newReading.weightKg) : undefined,
+      date: newReading.date,
     };
 
     try {
-        const res = await fetch(`${BACKEND_URL}/readings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error('Failed to add reading.');
-        
-        // Reset form and refetch data
-        setNewReading({ systolic: '', diastolic: '', pulseRate: '', weightKg: '', date: new Date().toISOString().slice(0, 16) });
-        fetchReadings(patientId);
+      const res = await fetch(`${BACKEND_URL}/readings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(t('failedToAddReading'));
+      
+      setNewReading({ systolic: '', diastolic: '', pulseRate: '', weightKg: '', date: new Date().toISOString().slice(0, 16) });
+      fetchReadings(patientId);
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
   };
 
@@ -117,7 +113,6 @@ export default function DailyReadingsPage() {
     const token = localStorage.getItem('authToken');
     const { _id, ...updateData } = editingData;
     
-    // Structure payload for the backend
     const payload = {
         systolic: updateData.systolic,
         diastolic: updateData.diastolic,
@@ -127,18 +122,18 @@ export default function DailyReadingsPage() {
     };
 
     try {
-        const res = await fetch(`${BACKEND_URL}/readings/${_id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error('Failed to update reading.');
-        
-        setEditingId(null);
-        setEditingData(null);
-        fetchReadings(patientId);
+      const res = await fetch(`${BACKEND_URL}/readings/${_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(t('failedToUpdateReading'));
+      
+      setEditingId(null);
+      setEditingData(null);
+      fetchReadings(patientId);
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
     }
   };
 
@@ -154,11 +149,9 @@ export default function DailyReadingsPage() {
     });
   }
 
-  // Optional: Add delete functionality
   const handleDeleteReading = async (readingId) => {
-      if (!window.confirm("Are you sure you want to delete this reading?")) return;
-      // ... Add logic to call a DELETE /api/readings/:id endpoint ...
-      alert("Delete functionality requires a backend DELETE endpoint.");
+      if (!window.confirm(t('confirmDelete'))) return;
+      alert(t('deleteNotImplemented'));
   }
 
   const formatDate = (isoString) => new Date(isoString).toLocaleString();
@@ -177,11 +170,11 @@ export default function DailyReadingsPage() {
         <motion.div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg mb-8" layout>
           <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">{t('addNewReading')}</h2>
           <form onSubmit={handleAddReading} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="number" name="systolic" value={newReading.systolic} onChange={handleInputChange} placeholder={t('systolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required />
-            <input type="number" name="diastolic" value={newReading.diastolic} onChange={handleInputChange} placeholder={t('diastolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required />
-            <input type="number" name="pulseRate" value={newReading.pulseRate} onChange={handleInputChange} placeholder={t('pulseRate')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required />
-            <input type="number" step="0.1" name="weightKg" value={newReading.weightKg} onChange={handleInputChange} placeholder={t('weightKg')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-            <input type="datetime-local" name="date" value={newReading.date} onChange={handleInputChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 md:col-span-2" required />
+            <input type="number" name="systolic" value={newReading.systolic} onChange={handleInputChange} placeholder={t('systolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" required />
+            <input type="number" name="diastolic" value={newReading.diastolic} onChange={handleInputChange} placeholder={t('diastolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" required />
+            <input type="number" name="pulseRate" value={newReading.pulseRate} onChange={handleInputChange} placeholder={t('pulseRate')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" required />
+            <input type="number" step="0.1" name="weightKg" value={newReading.weightKg} onChange={handleInputChange} placeholder={t('weightKg')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
+            <input type="datetime-local" name="date" value={newReading.date} onChange={handleInputChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 md:col-span-2 dark:text-gray-100" required />
             <button type="submit" className="flex items-center justify-center p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition md:col-span-3">
               <PlusCircle size={20} className="mr-2" /> {t('addReading')}
             </button>
@@ -189,48 +182,51 @@ export default function DailyReadingsPage() {
         </motion.div>
 
         {/* Readings List */}
-        <div className="space-y-4">
-          {isLoading && <p>{t('loadingReadings')}</p>}
-          {error && <p className="text-red-500">{error}</p>}
-          {!isLoading && readings.map(reading => (
-            editingId === reading._id ? (
-                // EDITING VIEW
-                <motion.form key={reading._id} layout onSubmit={handleUpdateReading} className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-xl shadow-md border border-blue-300">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-center">
-                        <input type="number" name="systolic" value={editingData.systolic} onChange={handleEditChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600"/>
-                        <input type="number" name="diastolic" value={editingData.diastolic} onChange={handleEditChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600"/>
-                        <input type="number" name="pulseRate" value={editingData.pulseRate} onChange={handleEditChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600"/>
-                        <input type="number" step="0.1" name="weightKg" value={editingData.weightKg} onChange={handleEditChange} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600"/>
-                        <input type="datetime-local" name="date" value={editingData.date} onChange={handleEditChange} className="col-span-2 md:col-span-4 p-2 border rounded dark:bg-gray-700 dark:border-gray-600"/>
-                    </div>
-                    <div className="flex justify-end gap-2 mt-3">
-                        <button type="button" onClick={() => setEditingId(null)} className="p-2 text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full"><XCircle size={20}/></button>
-                        <button type="submit" className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-800 rounded-full"><Save size={20}/></button>
-                    </div>
-                </motion.form>
-            ) : (
-                // NORMAL VIEW
-                <motion.div key={reading._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md group">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="font-semibold text-lg text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                                <Droplets className="text-red-500" size={20} /> BP: {reading.bloodPressure.systolic} / {reading.bloodPressure.diastolic} mmHg
-                            </p>
-                            <div className="flex gap-4 mt-2 text-gray-600 dark:text-gray-300">
-                                <span className="flex items-center gap-1"><HeartPulse size={16} /> {reading.pulseRate} BPM</span>
-                                {reading.weightKg && <span className="flex items-center gap-1"><Weight size={16} /> {reading.weightKg} kg</span>}
-                            </div>
-                        </div>
-                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => startEditing(reading)} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"><Edit size={18} /></button>
-                            <button onClick={() => handleDeleteReading(reading._id)} className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full"><Trash2 size={18} /></button>
-                        </div>
-                    </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 flex items-center gap-1"><Calendar size={14} /> {formatDate(reading.date)}</p>
-                </motion.div>
-            )
-          ))}
-        </div>
+        <AnimatePresence>
+          <div className="space-y-4">
+            {isLoading && <p className="text-center text-gray-600 dark:text-gray-300">{t('loadingReadings')}</p>}
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            {!isLoading && readings.length === 0 && <p className="text-center text-gray-600 dark:text-gray-300">{t('noReadingsFound')}</p>}
+            {!isLoading && readings.length > 0 && readings.map(reading => (
+              editingId === reading._id ? (
+                  // EDITING VIEW
+                  <motion.form key={reading._id} layout onSubmit={handleUpdateReading} className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-xl shadow-md border border-blue-300">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-center">
+                          <input type="number" name="systolic" value={editingData.systolic} onChange={handleEditChange} placeholder={t('systolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"/>
+                          <input type="number" name="diastolic" value={editingData.diastolic} onChange={handleEditChange} placeholder={t('diastolic')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"/>
+                          <input type="number" name="pulseRate" value={editingData.pulseRate} onChange={handleEditChange} placeholder={t('pulseRate')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"/>
+                          <input type="number" step="0.1" name="weightKg" value={editingData.weightKg} onChange={handleEditChange} placeholder={t('weightKg')} className="p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"/>
+                          <input type="datetime-local" name="date" value={editingData.date} onChange={handleEditChange} className="col-span-2 md:col-span-4 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"/>
+                      </div>
+                      <div className="flex justify-end gap-2 mt-3">
+                          <button type="button" onClick={() => setEditingId(null)} className="p-2 text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"><XCircle size={20}/></button>
+                          <button type="submit" className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-800 rounded-full"><Save size={20}/></button>
+                      </div>
+                  </motion.form>
+              ) : (
+                  // NORMAL VIEW
+                  <motion.div key={reading._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md group">
+                      <div className="flex justify-between items-start">
+                          <div>
+                              <p className="font-semibold text-lg text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                                  <Droplets className="text-red-500" size={20} /> BP: {reading.bloodPressure.systolic} / {reading.bloodPressure.diastolic} mmHg
+                              </p>
+                              <div className="flex gap-4 mt-2 text-gray-600 dark:text-gray-300">
+                                  <span className="flex items-center gap-1"><HeartPulse size={16} /> {reading.pulseRate} {t('bpm')}</span>
+                                  {reading.weightKg && <span className="flex items-center gap-1"><Weight size={16} /> {reading.weightKg} {t('kg')}</span>}
+                              </div>
+                          </div>
+                          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={() => startEditing(reading)} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"><Edit size={18} /></button>
+                              <button onClick={() => handleDeleteReading(reading._id)} className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full"><Trash2 size={18} /></button>
+                          </div>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-3 flex items-center gap-1"><Calendar size={14} /> {formatDate(reading.date)}</p>
+                  </motion.div>
+              )
+            ))}
+          </div>
+        </AnimatePresence>
       </motion.div>
     </div>
   );

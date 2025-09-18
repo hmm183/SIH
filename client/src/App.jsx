@@ -5,7 +5,7 @@ import LandingPage from "./components/landing/LandingPage";
 import "./index.css";
 import "./App.css";
 import Footer from "./components/common/Footer";
-import PatientDashboard from "./components/patient/PatientDashboard";
+import PatientDashboard from "./components/patient/dashboard/PatientDashboard";
 import DoctorDashboard from "./components/doctor/DoctorDashboard";
 import DiseaseHistory from "./components/patient/DiseaseHistory";
 import PrescriptionPage from './components/patient/Prescriptions';
@@ -46,16 +46,16 @@ function App() {
         {/* Routes */}
         <main className="flex-grow dark:bg-gray-900">
           <Routes>
-            <Route path="/" element={<LandingPage darkMode={darkMode} />} />
-            <Route path="/patient/dashboard" element={<PatientDashboard />} />
-            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
-            <Route path="/patient/history" element={<DiseaseHistory />} />
-            <Route path="/patient/prescriptions" element={<PrescriptionPage />} />
-            <Route path="/patient/readings" element={<DailyReadingsPage />} />
-            <Route path="/doctor/auth" element={<DoctorAuth />} />
-            <Route path="/patient/:id" element={<PatientProfile />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/disease-prediction" element={<DiseasePrediction />} />
+            <Route path="/" element={<LandingPage darkMode={darkMode} />} />{/*done*/}
+            <Route path="/patient/dashboard" element={<PatientDashboard />} />{/*done*/}
+            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />{/*done*/}
+            <Route path="/patient/history" element={<DiseaseHistory />} />{/*done*/}
+            {/* <Route path="/patient/prescriptions" element={<PrescriptionPage />} /> */}
+            <Route path="/patient/readings" element={<DailyReadingsPage />} />{/*done*/}
+            <Route path="/doctor/auth" element={<DoctorAuth />} />{/*done*/}
+            <Route path="/patient/:id" element={<PatientProfile />} />{/*done*/}
+            <Route path="/auth" element={<AuthPage />} />{/*done*/}
+            <Route path="/disease-prediction" element={<DiseasePrediction />} />{/*done*/}
 
             <Route
               path="/hotspot-map"

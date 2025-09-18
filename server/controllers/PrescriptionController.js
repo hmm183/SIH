@@ -4,22 +4,23 @@ const Doctor = require('../models/Doctor'); // Corrected model name
 
 /**
  * @desc    Create a new prescription
- * @route   POST /api/prescriptions
+ * @route   POST /api/v1/prescriptions
  * @access  Private (e.g., Doctor only)
  */
 exports.createPrescription = async (req, res) => {
   try {
+    // The 'medicines' field is now optional on creation.
     const { patientId, doctorId, medicines } = req.body;
 
-    // Basic validation to ensure required fields are present
-    if (!patientId || !doctorId || !medicines || medicines.length === 0) {
-      return res.status(400).json({ message: 'Missing required fields: patientId, doctorId, and at least one medicine.' });
+    // 1. MODIFIED VALIDATION: Only check for patientId and doctorId.
+    if (!patientId || !doctorId) {
+      return res.status(400).json({ message: 'Missing required fields: patientId and doctorId are required.' });
     }
 
     // Optional: Check if the patient and doctor actually exist
     const patientExists = await Patient.findById(patientId);
     if (!patientExists) {
-      return res.status(404).json({ message: `Patient with ID ${patientId} not found.` }); // Fixed template string
+      return res.status(404).json({ message: `Patient with ID ${patientId} not found.` });
     }
 
     const doctorExists = await Doctor.findById(doctorId);
@@ -30,11 +31,18 @@ exports.createPrescription = async (req, res) => {
     const newPrescription = new Prescription({
       patientId,
       doctorId,
-      medicines,
+      // 2. MODIFIED CREATION: Safely handle an undefined medicines array.
+      // If medicines is not provided in the request, it defaults to an empty array.
+      medicines: medicines || [], 
     });
 
     const savedPrescription = await newPrescription.save();
-    res.status(201).json(savedPrescription);
+
+    // 3. ENHANCED RESPONSE: Populate doctor info on creation for immediate use on the frontend.
+    const populatedPrescription = await Prescription.findById(savedPrescription._id)
+                                                      .populate('doctorId', 'name');
+
+    res.status(201).json(populatedPrescription);
 
   } catch (error) {
     console.error('Error creating prescription:', error);
@@ -50,7 +58,7 @@ exports.createPrescription = async (req, res) => {
 exports.getPrescriptionsByPatient = async (req, res) => {
   try {
     const prescriptions = await Prescription.find({ patientId: req.params.patientId })
-      .populate('doctorId', 'fullName specialization') // Fetches doctor's name and specialization
+      .populate('doctorId', 'name') // Fetches doctor's fullName and specialization
       .sort({ date: -1 }); // Show the most recent prescriptions first
 
     if (!prescriptions || prescriptions.length === 0) {
@@ -90,42 +98,7 @@ exports.updatePrescription = async (req, res) => {
     console.error('Error updating prescription:', error);
     res.status(500).json({ message: 'Server error while updating prescription.' });
   }
-}
-
-
-// exports.updateMedicineStatus = async (req, res) => {
-//   try {
-//     const { prescriptionId, medicineId } = req.params;
-//     const { status } = req.body;
-
-//     // Validate the incoming status
-//     if (!status || !['current', 'past'].includes(status)) {
-//       return res.status(400).json({ message: "Status must be 'current' or 'past'." });
-//     }
-
-//     // Find the prescription and update the status of the specific medicine
-//     const prescription = await Prescription.findOneAndUpdate(
-//       { "_id": prescriptionId, "medicines._id": medicineId },
-//       { 
-//         "$set": { "medicines.$.status": status } 
-//       },
-//       { new: true } // Return the updated document
-//     );
-
-//     if (!prescription) {
-//       return res.status(404).json({ message: 'Prescription or medicine not found.' });
-//     }
-
-//     res.status(200).json(prescription);
-
-//   } catch (error) {
-//     console.error('Error updating medicine status:', error);
-//     res.status(500).json({ message: 'Server error while updating medicine status.' });
-//   }
-// };
-
-
-// Add these new functions to your existing controller file
+};
 
 /**
  * @desc    Add a new medicine to an existing prescription
@@ -161,17 +134,16 @@ exports.addMedicineToPrescription = async (req, res) => {
   }
 };
 
-
 /**
  * @desc    Update a specific medicine's details in a prescription
  * @route   PUT /api/prescriptions/:prescriptionId/medicines/:medicineId
  * @access  Private (e.g., Doctor only)
  */
 exports.updateMedicineDetails = async (req, res) => {
-  try {
-    const { prescriptionId, medicineId } = req.params;
+  try {
+    const { prescriptionId, medicineId } = req.params;
     // Removed 'status' as it's handled by a separate function
-    const { name, dosage, frequency, duration } = req.body;
+    const { name, dosage, frequency, duration } = req.body;
 
     // Dynamically build the fields to be updated
     const updateFields = {};
@@ -191,59 +163,57 @@ exports.updateMedicineDetails = async (req, res) => {
     if (Object.keys(updateFields).length === 0) {
         return res.status(400).json({ message: 'No valid fields provided for update.' });
     }
-    
-    const prescription = await Prescription.findOneAndUpdate(
-      { "_id": prescriptionId, "medicines._id": medicineId },
-      { "$set": updateFields },
-      { new: true, runValidators: true }
-    );
+    
+    const prescription = await Prescription.findOneAndUpdate(
+      { "_id": prescriptionId, "medicines._id": medicineId },
+      { "$set": updateFields },
+      { new: true, runValidators: true }
+    );
 
-    if (!prescription) {
-      return res.status(404).json({ message: 'Prescription or medicine not found.' });
-    }
+    if (!prescription) {
+      return res.status(404).json({ message: 'Prescription or medicine not found.' });
+    }
 
-    res.status(200).json(prescription);
+    res.status(200).json(prescription);
 
-  } catch (error) {
-    console.error('Error updating medicine details:', error);
-    res.status(500).json({ message: 'Server error while updating medicine details.' });
-  }
+  } catch (error) {
+    console.error('Error updating medicine details:', error);
+    res.status(500).json({ message: 'Server error while updating medicine details.' });
+  }
 };
-
 
 /**
- * @desc    Update ONLY the status of a medicine
- * @route   PATCH /api/prescriptions/:prescriptionId/medicines/:medicineId/status  <-- MODIFIED ROUTE
- * @access  Private
- */
+ * @desc    Update ONLY the status of a medicine
+ * @route   PATCH /api/prescriptions/:prescriptionId/medicines/:medicineId/status
+ * @access  Private
+ */
 exports.updateMedicineStatus = async (req, res) => {
-  try {
-    const { prescriptionId, medicineId } = req.params;
-    const { status } = req.body;
+  try {
+    const { prescriptionId, medicineId } = req.params;
+    const { status } = req.body;
 
-    // Validate the incoming status
-    if (!status || !['current', 'past'].includes(status)) {
-      return res.status(400).json({ message: "Status must be 'current' or 'past'." });
-    }
+    // Validate the incoming status
+    if (!status || !['current', 'past'].includes(status)) {
+      return res.status(400).json({ message: "Status must be 'current' or 'past'." });
+    }
 
-    // Find the prescription and update the status of the specific medicine
-    const prescription = await Prescription.findOneAndUpdate(
-      { "_id": prescriptionId, "medicines._id": medicineId },
-      { 
-        "$set": { "medicines.$.status": status } 
-      },
-      { new: true } // Return the updated document
-    );
+    // Find the prescription and update the status of the specific medicine
+    const prescription = await Prescription.findOneAndUpdate(
+      { "_id": prescriptionId, "medicines._id": medicineId },
+      { 
+        "$set": { "medicines.$.status": status } 
+      },
+      { new: true } // Return the updated document
+    );
 
-    if (!prescription) {
-      return res.status(404).json({ message: 'Prescription or medicine not found.' });
-    }
+    if (!prescription) {
+      return res.status(404).json({ message: 'Prescription or medicine not found.' });
+    }
 
-    res.status(200).json(prescription);
+    res.status(200).json(prescription);
 
-  } catch (error) {
-    console.error('Error updating medicine status:', error);
-    res.status(500).json({ message: 'Server error while updating medicine status.' });
-  }
+  } catch (error) {
+    console.error('Error updating medicine status:', error);
+    res.status(500).json({ message: 'Server error while updating medicine status.' });
+  }
 };
-
