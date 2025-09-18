@@ -1,29 +1,27 @@
 import React, { useState } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
-import { useLang } from "../../context/LangContext"; // ✅ import context
+import { useLang } from "../../context/LangContext";
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
+import { useTheme } from "../../context/ThemeContext"; // ✅ Import the new hook
 
 const Navbar = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  // ✅ Use the global theme state from the context
+  const { darkMode, toggleDarkMode } = useTheme(); 
+  
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showMigrantModal, setShowMigrantModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
 
-  // ✅ from LangContext
   const { language, setLanguage, t, languages } = useLang();
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
-  };
-
+  // The toggle function now calls the global toggleDarkMode function
   const handleThemeAndLightToggle = () => {
     toggleDarkMode();
   };
 
   const changeLanguage = (code) => {
-    setLanguage(code); // ✅ update context
+    setLanguage(code);
     setShowLangMenu(false);
   };
 

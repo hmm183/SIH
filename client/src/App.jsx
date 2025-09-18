@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CustomNavbar from "./components/common/NavBar";
 import LandingPage from "./components/landing/LandingPage";
@@ -15,21 +15,12 @@ import DoctorAuth from './components/doctor/DoctorAuth';
 import PatientProfile from './components/patient/PatientProfile';
 import DiseasePrediction from "./components/common/image_test";
 import HotspotMap from "./components/common/HotspotMap";
-
-// ✅ 1. Import the new component
+import { ThemeProvider, useTheme } from "./context/ThemeContext"; 
 import EmergencyManagement from "./components/patient/EmergencyManagement";
 
-function App() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Apply Tailwind dark class to <html>
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [darkMode]);
+// Wrapper to access theme context inside App
+function ThemedApp() {
+  const { darkMode } = useTheme();
 
   return (
     <Router>
@@ -41,51 +32,56 @@ function App() {
         }
       >
         {/* Navbar always visible */}
-        <CustomNavbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <CustomNavbar />
 
         {/* Routes */}
         <main className="flex-grow dark:bg-gray-900">
           <Routes>
-            <Route path="/" element={<LandingPage darkMode={darkMode} />} />{/*done*/}
-            <Route path="/patient/dashboard" element={<PatientDashboard />} />{/*done*/}
-            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />{/*done*/}
-            <Route path="/patient/history" element={<DiseaseHistory />} />{/*done*/}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/patient/dashboard" element={<PatientDashboard />} />
+            <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+            <Route path="/patient/history" element={<DiseaseHistory />} />
             {/* <Route path="/patient/prescriptions" element={<PrescriptionPage />} /> */}
-            <Route path="/patient/readings" element={<DailyReadingsPage />} />{/*done*/}
-            <Route path="/doctor/auth" element={<DoctorAuth />} />{/*done*/}
-            <Route path="/patient/:id" element={<PatientProfile />} />{/*done*/}
-            <Route path="/auth" element={<AuthPage />} />{/*done*/}
-            <Route path="/disease-prediction" element={<DiseasePrediction />} />{/*done*/}
+            <Route path="/patient/readings" element={<DailyReadingsPage />} />
+            <Route path="/doctor/auth" element={<DoctorAuth />} />
+            <Route path="/patient/:id" element={<PatientProfile />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/disease-prediction" element={<DiseasePrediction />} />
 
             <Route
               path="/hotspot-map"
               element={
                 <HotspotMap
                   disease="Chickenpox"
-                  center={{ lat: 28.6139, lng: 77.2090 }} // Default: New Delhi
-                  radius={10} // km
+                  center={{ lat: 28.6139, lng: 77.2090 }}
+                  radius={10}
                 />
               }
             />
 
-            {/* ✅ 2. Add the new route for testing */}
             <Route
               path="/test-emergency"
               element={
                 <div className="container mx-auto p-4">
-                  {/* 👇 IMPORTANT: Replace this with a REAL patient ID from your database! */}
                   <EmergencyManagement patientId="68bae87b0ab9cc9c53ad1efc" />
                 </div>
               }
             />
-
           </Routes>
         </main>
 
         {/* Footer always visible */}
-        <Footer darkMode={darkMode} />
+        <Footer />
       </div>
     </Router>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <ThemedApp />
+    </ThemeProvider>
   );
 }
 
