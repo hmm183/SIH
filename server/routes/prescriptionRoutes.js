@@ -6,25 +6,32 @@ const {
   getPrescriptionsByPatient,
   updatePrescription,
   updateMedicineStatus,
-  addMedicineToPrescription,  // <-- Import new function
-  updateMedicineDetails       // <-- Import new function
+  addMedicineToPrescription,
+  updateMedicineDetails,
+  deletePrescription // Ensure this is imported
 } = require('../controllers/PrescriptionController');
 
-// POST a new prescription
-router.post('/', createPrescription);
+// Routes for creating a new prescription and getting all for a patient
+router.route('/')
+  .post(createPrescription);
 
-// GET all prescriptions for a specific patient
-router.get('/patient/:patientId', getPrescriptionsByPatient);
+router.route('/patient/:patientId')
+  .get(getPrescriptionsByPatient);
 
-// PUT (update) an existing prescription by its ID
-//router.put('/:prescriptionId/medicines/:medicineId', updateMedicineStatus);
-router.put('/:id', updatePrescription);
+// Routes for a specific prescription by its ID (Update and Delete)
+router.route('/:id')
+  .put(updatePrescription)
+  .delete(deletePrescription);
 
-router.put('/medicines/:prescriptionId/:medicineId/status', updateMedicineStatus); // Example path, use your actual one
+// Routes for adding a new medicine to a prescription
+router.route('/:id/medicines')
+  .post(addMedicineToPrescription);
 
-router.post('/:id/medicines', addMedicineToPrescription);
+// Routes for a specific medicine within a prescription (Update details and status)
+router.route('/:prescriptionId/medicines/:medicineId')
+  .put(updateMedicineDetails);
 
-// Update a specific medicine's details
-router.put('/:prescriptionId/medicines/:medicineId', updateMedicineDetails);
+router.route('/medicines/:prescriptionId/:medicineId/status')
+  .put(updateMedicineStatus);
 
 module.exports = router;

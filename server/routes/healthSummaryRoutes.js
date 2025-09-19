@@ -3,7 +3,7 @@ const router = express.Router();
 const {
     getHealthSummary,
     generateHealthSummary,
-    queryHealthData
+    queryHealthData,generateAndEmailSummary
 } = require('../controllers/healthSummaryController'); // Adjust path as needed
 
 // A router to handle authentication would go here
@@ -17,5 +17,7 @@ router.post('/generate', generateHealthSummary);
 
 // POST to ask a specific question (query)
 router.post('/query', queryHealthData);
+
+router.post('/generate-and-email', generateAndEmailSummary);
 
 module.exports = router;

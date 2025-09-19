@@ -5,6 +5,7 @@ const DiseaseHistory = require('../models/diseaseHistoryModel');
 const Prescription = require('../models/prescriptionModel');
 const DailyReading = require('../models/dailyReadingModel');
 const HealthSummary = require('../models/healthSummaryModel');
+const { sendPatientSummaryEmail } = require('../services/emailService'); 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -209,3 +210,107 @@ exports.queryHealthData = async (req, res) => {
   }
 };
 
+
+exports.generateAndEmailSummary = async (req, res) => {
+    let patient;
+    const { patientId } = req.body;
+
+    try {
+        // 1. Authenticate the doctor
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Not authorized, no token provided.' });
+        }
+        jwt.verify(token, process.env.JWT_SECRET); // Throws error if invalid
+
+        // 2. Validate patient ID
+        if (!patientId || !mongoose.Types.ObjectId.isValid(patientId)) {
+            return res.status(400).json({ error: 'A valid Patient ID is required.' });
+        }
+        
+        // 3. Fetch patient data (check for email early)
+        patient = await Patient.findById(patientId);
+        if (!patient) {
+            return res.status(404).json({ error: 'Patient not found.' });
+        }
+        if (!patient.email) {
+            return res.status(400).json({ error: 'Patient does not have a registered email address.' });
+        }
+        
+        // 4. Aggregate all health data
+        const history = await DiseaseHistory.find({ patientId }).sort({ diagnosisDate: -1 });
+        const prescriptions = await Prescription.find({ patientId }).sort({ date: -1 });
+        const latestReading = await DailyReading.findOne({ patientId }).sort({ date: -1 });
+
+        let dataContext = `Patient Name: ${patient.fullName}\nAge: ${patient.age}\nGender: ${patient.gender}\n`;
+        if (latestReading?.bloodPressure) {
+            dataContext += `Latest Vitals: Blood Pressure ${latestReading.bloodPressure.systolic}/${latestReading.bloodPressure.diastolic} mmHg, Pulse: ${latestReading.pulseRate} bpm.\n`;
+        }
+        if (history.length > 0) {
+            dataContext += "Known Conditions: " + history.map(h => `${h.illnessName} (Status: ${h.status})`).join(', ') + ".\n";
+        }
+        const currentMeds = prescriptions.flatMap(p => p.medicines).filter(m => m.status === 'current');
+        if (currentMeds.length > 0) {
+            dataContext += "Current Medications: " + currentMeds.map(m => `${m.name} (${m.dosage})`).join(', ') + ".\n";
+        }
+
+        const prompt = `
+            You are a senior medical analyst. Synthesize the provided data into a comprehensive health summary for a patient.
+            Structure the summary into sections: "Overview", "Key Medical History", "Current Status", and "Medication Review".
+            Present it in a cohesive, paragraph-based format.
+            Data:
+            ---
+            ${dataContext}
+            ---
+        `;
+        
+        // 5. Generate summary with AI
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await generateContentWithRetry(model, prompt);
+        const summaryText = result.response.text();
+
+        // 6. Save the new summary to DB
+        const summaryData = {
+            patientId,
+            summaryContent: summaryText,
+            generatedAt: new Date(),
+            sourceData: `AI-Generated and Emailed. Prompt included: ${prompt.substring(0, 200)}...`
+        };
+        await HealthSummary.findOneAndUpdate({ patientId }, summaryData, { new: true, upsert: true });
+
+        // 7. Email the summary
+        await sendPatientSummaryEmail(patient.email, patient.fullName, summaryText);
+
+        res.status(200).json({ success: true, message: `Summary generated and sent to ${patient.email}` });
+
+    } catch (error) {
+        console.error("Error in generateAndEmailSummary:", error.message);
+        
+        // --- FALLBACK MECHANISM ---
+        console.warn("AI generation failed. Attempting to email a basic fallback summary.");
+        try {
+            if (!patient) patient = await Patient.findById(patientId);
+            if (!patient || !patient.email) return res.status(404).json({ error: 'Patient not found for fallback.' });
+
+            const fallbackSummaryContent = `
+                **Overview**: A basic health summary for ${patient.fullName}, a ${patient.age}-year-old ${patient.gender}.
+                **Medical History**: Includes ${await DiseaseHistory.find({ patientId }).then(h => h.length ? h.map(item => item.illnessName).join(', ') : 'no specified conditions')}.
+                **Medications**: Current medications include: ${await Prescription.find({ patientId }).then(p => {
+                    const meds = p.flatMap(pres => pres.medicines).filter(m => m.status === 'current');
+                    return meds.length ? meds.map(m => `${m.name} ${m.dosage}`).join(', ') : 'None listed';
+                })}.
+            `.replace(/\s+/g, ' ').trim();
+
+            // Save and email the fallback summary
+            const summaryData = { patientId, summaryContent: fallbackSummaryContent, sourceData: "Fallback summary (Emailed)." };
+            await HealthSummary.findOneAndUpdate({ patientId }, summaryData, { new: true, upsert: true });
+            await sendPatientSummaryEmail(patient.email, patient.fullName, fallbackSummaryContent);
+            
+            res.status(200).json({ success: true, message: `AI failed, but a basic fallback summary was sent to ${patient.email}` });
+
+        } catch (fallbackError) {
+            console.error("Error creating and emailing fallback summary:", fallbackError);
+            res.status(500).json({ error: "Failed to generate summary, and the fallback also failed.", details: fallbackError.message });
+        }
+    }
+};

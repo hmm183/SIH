@@ -467,6 +467,7 @@ const BASE_TEXTS = {
   'silver_like_ dusting': "silver like dusting",
   'spottingz_ urination': "spotting urination",
   'spotting_ urination' : "spotting urination",
+  processPrescription: "Process Prescription",
 };
 
 // ✅ Updated Translation function with batching

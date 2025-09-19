@@ -45,7 +45,7 @@ const Navbar = () => {
     } else if (type === "patient") {
       localStorage.removeItem("authToken");
     }
-    window.location.reload(); // refresh page after logout
+    window.location.reload();
   };
 
   return (
@@ -99,7 +99,20 @@ const Navbar = () => {
                       href="/hotspot-map"
                       className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
-                      {t("hotspot")} 
+                      {t("hotspot")}
+                    </a>
+                    {/* ✅ New links for Prescriptions */}
+                    <a
+                      href="/prescriptions"
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("myPrescriptions") || "My Prescriptions"}
+                    </a>
+                    <a
+                      href="/prescription/process"
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("processPrescription") || "Process Prescription"}
                     </a>
                   </div>
                 )}
