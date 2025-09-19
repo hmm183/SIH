@@ -313,6 +313,9 @@ const BASE_TEXTS = {
   confirmDeleteDoctor: "Delete this doctor?",
   confirmDeleteHospital: "Delete this hospital?",
   requestFailed: "Request failed with status {{status}}",
+  aiAnalyzer1: "AI Disease Image Analyzer",
+  aiAnalyzer2: "AI Symptom Analyzer",
+  hotspot: "Hotspot Map",
 };
 
 // ✅ Updated Translation function with batching

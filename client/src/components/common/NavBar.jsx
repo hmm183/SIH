@@ -1,21 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { useLang } from "../../context/LangContext";
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
-import { useTheme } from "../../context/ThemeContext"; // ✅ Import the new hook
+import { useTheme } from "../../context/ThemeContext";
 
 const Navbar = () => {
-  // ✅ Use the global theme state from the context
-  const { darkMode, toggleDarkMode } = useTheme(); 
-  
+  const { darkMode, toggleDarkMode } = useTheme();
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [showMigrantModal, setShowMigrantModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showServicesMenu, setShowServicesMenu] = useState(false);
 
   const { language, setLanguage, t, languages } = useLang();
 
-  // The toggle function now calls the global toggleDarkMode function
+  const [doctorToken, setDoctorToken] = useState(null);
+  const [patientToken, setPatientToken] = useState(null);
+
+  useEffect(() => {
+    setDoctorToken(localStorage.getItem("doctorAuthToken"));
+    setPatientToken(localStorage.getItem("authToken"));
+  }, []);
+
   const handleThemeAndLightToggle = () => {
     toggleDarkMode();
   };
@@ -30,7 +36,16 @@ const Navbar = () => {
   };
 
   const redirectToDocAuth = () => {
-    window.location.href = "doctor/auth";
+    window.location.href = "/doctor/auth";
+  };
+
+  const handleLogout = (type) => {
+    if (type === "doctor") {
+      localStorage.removeItem("doctorAuthToken");
+    } else if (type === "patient") {
+      localStorage.removeItem("authToken");
+    }
+    window.location.reload(); // refresh page after logout
   };
 
   return (
@@ -57,34 +72,72 @@ const Navbar = () => {
               >
                 {t("about")}
               </a>
-              <a
-                href="#features"
-                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
-              >
-                {t("services")}
-              </a>
-              <a
-                href="#contact"
-                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
-              >
-                {t("contact")}
-              </a>
 
-              {/* Doctor Sign In */}
-              <button
-                onClick={redirectToDocAuth}
-                className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-              >
-                {t("doctorSignIn")}
-              </button>
+              {/* ✅ Services Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowServicesMenu(!showServicesMenu)}
+                  className="text-gray-800 dark:text-gray-200 hover:text-blue-500 focus:outline-none"
+                >
+                  {t("services")} ▼
+                </button>
+                {showServicesMenu && (
+                  <div className="absolute left-0 mt-2 w-60 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+                    <a
+                      href="/disease-prediction"
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("aiAnalyzer1") || "AI Disease Image Analyzer"}
+                    </a>
+                    <a
+                      href="/disease-symptom-prediction"
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("aiAnalyzer2") || "AI Symptom Analyzer"}
+                    </a>
+                    <a
+                      href="/hotspot-map"
+                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {t("hotspot")} 
+                    </a>
+                  </div>
+                )}
+              </div>
 
-              {/* Patient Sign In */}
-              <button
-                onClick={redirectToAuth}
-                className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
-              >
-                {t("patientSignIn")}
-              </button>
+              {/* Doctor Auth Button */}
+              {doctorToken ? (
+                <button
+                  onClick={() => handleLogout("doctor")}
+                  className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                >
+                  {t("logout") || "Logout"}
+                </button>
+              ) : (
+                <button
+                  onClick={redirectToDocAuth}
+                  className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+                >
+                  {t("doctorSignIn")}
+                </button>
+              )}
+
+              {/* Patient Auth Button */}
+              {patientToken ? (
+                <button
+                  onClick={() => handleLogout("patient")}
+                  className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                >
+                  {t("logout") || "Logout"}
+                </button>
+              ) : (
+                <button
+                  onClick={redirectToAuth}
+                  className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                >
+                  {t("patientSignIn")}
+                </button>
+              )}
 
               {/* Language Dropdown */}
               <div className="relative">

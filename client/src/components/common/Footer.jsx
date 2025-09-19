@@ -22,9 +22,19 @@ const Footer = () => {
               {translations?.footerTitle || "Migrant Health"}.{" "}
               {translations?.allRights || "All rights reserved."}
             </p>
-            <p className="text-sm mb-0">
+            <p className="text-sm mb-2">
               {translations?.footerBuiltWith ||
                 "Built with React, Tailwind CSS, Chart.js & Three.js."}
+            </p>
+            {/* ✅ Contact Info */}
+            <p className="text-sm">
+              <span className="font-semibold">Contact Us:</span>{" "}
+              <a
+                href="mailto:vrishank.23bce8373@vitapstudent.ac.in"
+                className="text-blue-400 hover:underline"
+              >
+                vrishank.23bce8373@vitapstudent.ac.in
+              </a>
             </p>
           </div>
 
