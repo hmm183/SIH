@@ -28,7 +28,7 @@ const hotspotRoutes = require("./routes/hotspotRoutes");
 const emergencyContactRoutes = require('./routes/emergencyContactRoutes');
 const emergencyDoctorRoutes = require('./routes/emergencyDoctorRoutes');
 const emergencyHospitalRoutes = require('./routes/emergencyHospitalRoutes');
-
+const OcrPrescriptionRoutes = require('./routes/ocrPrescriptionRoutes');
 const app = express();
 
 // ... (the rest of your server.js file is correct) ...
@@ -52,6 +52,7 @@ app.use("/api/v1/hotspots", hotspotRoutes);
 app.use("/api/v1/emergency-contacts", emergencyContactRoutes);
 app.use("/api/v1/emergency-doctors", emergencyDoctorRoutes);
 app.use("/api/v1/emergency-hospitals", emergencyHospitalRoutes);
+app.use("/api/v1/ocr-prescriptions", OcrPrescriptionRoutes);
 
 const PORT = process.env.PORT || 5000;
 

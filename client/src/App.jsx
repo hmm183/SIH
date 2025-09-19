@@ -18,6 +18,9 @@ import HotspotMap from "./components/common/HotspotMap";
 import { ThemeProvider, useTheme } from "./context/ThemeContext"; 
 import EmergencyManagement from "./components/patient/EmergencyManagement";
 import DiseaseSymptomPrediction from "./components/common/DiseaseSymptomPrediction";
+import PrescriptionUploadPage from "./components/PrescriptionUploadPage";
+import PrescriptionResultPage from "./components/PrescriptionResultPage";
+import PrescriptionListPage from "./components/PrescriptionListPage";
 
 // Wrapper to access theme context inside App
 function ThemedApp() {
@@ -49,6 +52,9 @@ function ThemedApp() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/disease-prediction" element={<DiseasePrediction />} />
             <Route path="/disease-symptom-prediction" element={<DiseaseSymptomPrediction />} />
+            <Route path="/prescriptions" element={<PrescriptionListPage />} /> {/* <-- Add this new route */}
+            <Route path="/prescription/process" element={<PrescriptionUploadPage />} />
+            <Route path="/prescription/result/:id" element={<PrescriptionResultPage />} />
 
             <Route
               path="/hotspot-map"
