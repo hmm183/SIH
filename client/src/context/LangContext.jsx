@@ -32,9 +32,7 @@ const languages = [
   { value: "ru", label: "Russian" },
   { value: "ja", label: "Japanese" },
   { value: "pt", label: "Portuguese" },
-
 ];
-
 
 // ⚠️ TEMPORARY: Replace with env variable & backend proxy later
 const BACKEND_URL = "http://localhost:5000/api/v1";
@@ -316,6 +314,159 @@ const BASE_TEXTS = {
   aiAnalyzer1: "AI Disease Image Analyzer",
   aiAnalyzer2: "AI Symptom Analyzer",
   hotspot: "Hotspot Map",
+  // DiseaseSymptomPrediction page translations
+  bioSynth: "BioSynth",
+  selectSymptoms: "Select the symptoms you are experiencing:",
+  pleaseSelectSymptom: "Please select at least one symptom.",
+  predictionFailed: "Prediction failed. Please try again.",
+  predictionNotFound: "Prediction not found. Please try again.",
+  searchSymptoms: "Search symptoms...",
+  selected: "Selected",
+  clearAll: "Clear All",
+  chosenSymptoms: "No symptoms chosen yet.",
+  initiateDiagnosis: "Initiate Diagnosis",
+  potentialDiagnosis: "Potential Diagnosis:",
+  disclaimer: "Disclaimer: This is not a medical diagnosis. Please consult a doctor.",
+  // Symptom translations
+  itching: "Itching",
+  skin_rash: "Skin Rash",
+  nodal_skin_eruptions: "Nodal Skin Eruptions",
+  continuous_sneezing: "Continuous Sneezing",
+  shivering: "Shivering",
+  chills: "Chills",
+  joint_pain: "Joint Pain",
+  stomach_pain: "Stomach Pain",
+  acidity: "Acidity",
+  ulcers_on_tongue: "Ulcers on Tongue",
+  muscle_wasting: "Muscle Wasting",
+  vomiting: "Vomiting",
+  burning_micturition: "Burning Micturition",
+  spotting_urination: "Spotting During Urination",
+  fatigue: "Fatigue",
+  weight_gain: "Weight Gain",
+  anxiety: "Anxiety",
+  cold_hands_and_feets: "Cold Hands and Feet",
+  mood_swings: "Mood Swings",
+  weight_loss: "Weight Loss",
+  restlessness: "Restlessness",
+  lethargy: "Lethargy",
+  patches_in_throat: "Patches in Throat",
+  irregular_sugar_level: "Irregular Sugar Level",
+  cough: "Cough",
+  high_fever: "High Fever",
+  sunken_eyes: "Sunken Eyes",
+  breathlessness: "Breathlessness",
+  sweating: "Sweating",
+  dehydration: "Dehydration",
+  indigestion: "Indigestion",
+  headache: "Headache",
+  yellowish_skin: "Yellowish Skin",
+  dark_urine: "Dark Urine",
+  nausea: "Nausea",
+  loss_of_appetite: "Loss of Appetite",
+  pain_behind_the_eyes: "Pain Behind the Eyes",
+  back_pain: "Back Pain",
+  constipation: "Constipation",
+  abdominal_pain: "Abdominal Pain",
+  diarrhoea: "Diarrhoea",
+  mild_fever: "Mild Fever",
+  yellow_urine: "Yellow Urine",
+  yellowing_of_eyes: "Yellowing of Eyes",
+  acute_liver_failure: "Acute Liver Failure",
+  fluid_overload: "Fluid Overload",
+  swelling_of_stomach: "Swelling of Stomach",
+  swelled_lymph_nodes: "Swollen Lymph Nodes",
+  malaise: "Malaise",
+  blurred_and_distorted_vision: "Blurred and Distorted Vision",
+  phlegm: "Phlegm",
+  throat_irritation: "Throat Irritation",
+  redness_of_eyes: "Redness of Eyes",
+  sinus_pressure: "Sinus Pressure",
+  runny_nose: "Runny Nose",
+  congestion: "Congestion",
+  chest_pain: "Chest Pain",
+  weakness_in_limbs: "Weakness in Limbs",
+  fast_heart_rate: "Fast Heart Rate",
+  pain_during_bowel_movements: "Pain During Bowel Movements",
+  pain_in_anal_region: "Pain in Anal Region",
+  bloody_stool: "Bloody Stool",
+  irritation_in_anus: "Irritation in anus",
+  neck_pain: "Neck Pain",
+  dizziness: "Dizziness",
+  cramps: "Cramps",
+  bruising: "Bruising",
+  obesity: "Obesity",
+  swollen_legs: "Swollen Legs",
+  swollen_blood_vessels: "Swollen Blood Vessels",
+  puffy_face_and_eyes: "Puffy Face and Eyes",
+  enlarged_thyroid: "Enlarged Thyroid",
+  brittle_nails: "Brittle Nails",
+  swollen_extremeties: "Swollen Extremities",
+  excessive_hunger: "Excessive Hunger",
+  extra_marital_contacts: "Extra Marital Contacts",
+  drying_and_tingling_lips: "Drying and Tingling Lips",
+  slurred_speech: "Slurred Speech",
+  knee_pain: "Knee Pain",
+  hip_joint_pain: "Hip Joint Pain",
+  muscle_weakness: "Muscle Weakness",
+  stiff_neck: "Stiff Neck",
+  swelling_joints: "Swelling Joints",
+  movement_stiffness: "Movement Stiffness",
+  spinning_movements: "Spinning Movements",
+  loss_of_balance: "Loss of Balance",
+  unsteadiness: "Unsteadiness",
+  weakness_of_one_body_side: "Weakness of One Body Side",
+  loss_of_smell: "Loss of Smell",
+  bladder_discomfort: "Bladder Discomfort",
+  foul_smell_of_urine: "Foul Smell of Urine",
+  continuous_feel_of_urine: "Continuous Urge to Urinate",
+  passage_of_gases: "Passage of Gases",
+  internal_itching: "Internal Itching",
+  toxic_look_typhos: "Toxic Look (Typhoid)",
+  depression: "Depression",
+  irritability: "Irritability",
+  muscle_pain: "Muscle Pain",
+  altered_sensorium: "Altered Sensorium",
+  red_spots_over_body: "Red Spots Over Body",
+  belly_pain: "Belly Pain",
+  abnormal_menstruation: "Abnormal Menstruation",
+  dischromic_patches: "Dischromic Patches",
+  watering_from_eyes: "Watering from Eyes",
+  increased_appetite: "Increased Appetite",
+  polyuria: "Polyuria",
+  family_history: "Family History",
+  mucoid_sputum: "Mucoid Sputum",
+  rusty_sputum: "Rusty Sputum",
+  lack_of_concentration: "Lack of Concentration",
+  visual_disturbances: "Visual Disturbances",
+  receiving_blood_transfusion: "Receiving Blood Transfusion",
+  receiving_unsterile_injections: "Receiving Unsterile Injections",
+  coma: "Coma",
+  stomach_bleeding: "Stomach Bleeding",
+  distention_of_abdomen: "Distention of Abdomen",
+  history_of_alcohol_consumption: "History of Alcohol Consumption",
+  fluid_overload_1: "Fluid Overload",
+  blood_in_sputum: "Blood in Sputum",
+  prominent_veins_on_calf: "Prominent Veins on Calf",
+  palpitations: "Palpitations",
+  painful_walking: "Painful Walking",
+  pus_filled_pimples: "Pus Filled Pimples",
+  blackheads: "Blackheads",
+  scurring: "Scarring",
+  skin_peeling: "Skin Peeling",
+  silver_like_dusting: "Silver-like Dusting",
+  small_dents_in_nails: "Small Dents in Nails",
+  inflammatory_nails: "Inflammatory Nails",
+  blister: "Blister",
+  red_sore_around_nose: "Red Sore Around Nose",
+  yellow_crust_ooze: "Yellow Crust Ooze",
+  'foul_smell_of urine': "foul smell of urine",
+  'toxic_look_(typhos)' : "toxic look (typhos)",
+  'fluid_overload.1' : "fluid overload.1",
+  'dischromic _patches': "dischromic patches",
+  'silver_like_ dusting': "silver like dusting",
+  'spottingz_ urination': "spotting urination",
+  'spotting_ urination' : "spotting urination",
 };
 
 // ✅ Updated Translation function with batching
@@ -352,13 +503,21 @@ async function translateText(texts, targetLang) {
   }
 }
 
-
 const LangContext = createContext();
 export const useLang = () => useContext(LangContext);
 
 export const LangProvider = ({ children }) => {
-  const [language, setLanguage] = useState("en");
+  // ✅ Load language from localStorage (fallback: "en")
+  const [language, setLanguageState] = useState(
+    () => localStorage.getItem("preferredLanguage") || "en"
+  );
   const [translations, setTranslations] = useState(BASE_TEXTS);
+
+  // ✅ Custom setter that also saves to localStorage
+  const setLanguage = (lang) => {
+    setLanguageState(lang);
+    localStorage.setItem("preferredLanguage", lang);
+  };
 
   // 🔄 Auto-translate when language changes (skip English)
   useEffect(() => {
@@ -371,16 +530,16 @@ export const LangProvider = ({ children }) => {
       const keys = Object.keys(BASE_TEXTS);
       const values = Object.values(BASE_TEXTS);
 
-      // ✅ FIX: Filter out empty strings before translating
-      const nonNullValues = values.filter(text => text !== null && text !== '');
+      const nonNullValues = values.filter(
+        (text) => text !== null && text !== ""
+      );
 
       const translated = await translateText(nonNullValues, language);
       const newTranslations = {};
 
-      // ✅ FIX: Map translated values back to their original keys
       let translatedIndex = 0;
       keys.forEach((key, i) => {
-        if (values[i] !== null && values[i] !== '') {
+        if (values[i] !== null && values[i] !== "") {
           newTranslations[key] = translated[translatedIndex];
           translatedIndex++;
         } else {
@@ -401,12 +560,12 @@ export const LangProvider = ({ children }) => {
     <LangContext.Provider
       value={{
         language,
-        setLanguage,
+        setLanguage, // ✅ wrapped setter
         translations,
         setTranslations,
         t,
         languages,
-        translateText // ✅ Expose the translateText function
+        translateText,
       }}
     >
       {children}
