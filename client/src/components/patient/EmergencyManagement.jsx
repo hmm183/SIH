@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, UserPlus, Phone, Hospital, Stethoscope, Edit, Trash2, PlusCircle, X } from 'lucide-react';
 import { useLang } from '../../context/LangContext'; // 🌐 Import useLang hook
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
 const modalVariants = {
     hidden: { opacity: 0, y: -50, scale: 0.9 },

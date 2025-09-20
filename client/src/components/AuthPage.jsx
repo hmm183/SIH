@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "../context/LangContext"; // ✅ import LangContext
 
-const BACKEND_URL = "http://localhost:5000/api/v1/auth";
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}/auth`;
 
 const AuthPage = () => {
   const navigate = useNavigate();

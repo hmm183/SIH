@@ -1,10 +1,11 @@
+// pages/PrescriptionUploadPage.jsx
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Upload, FileCheck, Loader } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
+import { useLang } from '../context/LangContext'; // ✅ import useLang
 
-// Define your backend URL
-const BACKEND_URL = 'http://localhost:5000/api/v1';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
 
 export default function PrescriptionUploadPage() {
   const [file, setFile] = useState(null);
@@ -14,8 +15,9 @@ export default function PrescriptionUploadPage() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
+  const { t } = useLang(); // ✅ translation function
 
-  // Handles file selection from the device
+  // Handles file selection
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -24,7 +26,7 @@ export default function PrescriptionUploadPage() {
     }
   };
 
-  // Activates the device camera
+  // Activates the camera
   const startCamera = async () => {
     setMode('camera');
     setFile(null);
@@ -35,19 +37,19 @@ export default function PrescriptionUploadPage() {
       }
     } catch (err) {
       console.error("Camera error:", err);
-      setError("Could not access the camera. Please check permissions.");
+      setError(t("cameraError"));
       setMode('select');
     }
   };
 
-  // Stops the camera stream
+  // Stops camera stream
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       videoRef.current.srcObject.getTracks().forEach(track => track.stop());
     }
   };
 
-  // Captures a photo from the camera feed
+  // Captures photo
   const capturePhoto = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -60,14 +62,14 @@ export default function PrescriptionUploadPage() {
         setFile(capturedFile);
       }, 'image/jpeg');
       stopCamera();
-      setMode('select'); // Go back to the upload view
+      setMode('select');
     }
   };
 
-  // Handles the entire submission process
+  // Submission process
   const handleSubmit = async () => {
     if (!file) {
-      setError('Please select a file or capture a photo first.');
+      setError(t("noFileError"));
       return;
     }
     setStatus('uploading');
@@ -84,21 +86,17 @@ export default function PrescriptionUploadPage() {
       formData.append("upload_preset", uploadPreset);
 
       const cloudinaryRes = await fetch(url, { method: "POST", body: formData });
-      if (!cloudinaryRes.ok) throw new Error("Upload to Cloudinary failed.");
+      if (!cloudinaryRes.ok) throw new Error(t("cloudinaryError"));
       const cloudinaryData = await cloudinaryRes.json();
 
       setStatus('processing');
 
-      // Step 2: Send URL and patientId to our backend
+      // Step 2: Send URL and patientId to backend
       const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error("Authentication token not found.");
-      }
-      
-      // WARNING: Insecure - For temporary debugging only.
-      // Decoding the token on the frontend to get the patient ID.
+      if (!token) throw new Error(t("authError"));
+
       const decodedToken = jwtDecode(token);
-      const patientId = decodedToken.id; // Assuming patient ID is in the 'id' field
+      const patientId = decodedToken.id;
 
       const backendRes = await fetch(`${BACKEND_URL}/ocr-prescriptions`, {
         method: 'POST',
@@ -106,18 +104,15 @@ export default function PrescriptionUploadPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        // Sending the patientId from the frontend
         body: JSON.stringify({ 
           fileUrl: cloudinaryData.secure_url,
           patientId: patientId
         }),
       });
 
-      if (!backendRes.ok) throw new Error('Backend failed to accept the file.');
+      if (!backendRes.ok) throw new Error(t("backendError"));
       
       const { recordId } = await backendRes.json();
-      
-      // Navigate to the results page on success
       navigate(`/prescription/result/${recordId}`);
 
     } catch (err) {
@@ -127,31 +122,31 @@ export default function PrescriptionUploadPage() {
   };
   
   return (
-    <div className="container mx-auto p-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">Process New Prescription</h1>
+    <div className="container mx-auto p-8 max-w-2xl mt-20">
+      <h1 className="text-3xl font-bold mb-6 text-center">{t("processPrescription")}</h1>
       {mode === 'camera' ? (
         <div className="text-center">
           <video ref={videoRef} autoPlay playsInline className="w-full rounded-lg shadow-lg mb-4"></video>
           <canvas ref={canvasRef} className="hidden"></canvas>
-          <button onClick={capturePhoto} className="px-6 py-3 bg-red-600 text-white rounded-lg mr-4">Capture</button>
-          <button onClick={() => { stopCamera(); setMode('select'); }} className="px-6 py-3 bg-gray-500 text-white rounded-lg">Cancel</button>
+          <button onClick={capturePhoto} className="px-6 py-3 bg-red-600 text-white rounded-lg mr-4">{t("capture")}</button>
+          <button onClick={() => { stopCamera(); setMode('select'); }} className="px-6 py-3 bg-gray-500 text-white rounded-lg">{t("cancel")}</button>
         </div>
       ) : (
         <div className="bg-gray-50 p-8 rounded-lg shadow-md text-center">
           <div className="flex justify-center gap-4 mb-6">
             <button onClick={() => document.getElementById('file-upload').click()} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100">
-              <Upload className="mb-2" /> Upload File
+              <Upload className="mb-2" /> {t("uploadFile")}
             </button>
             <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/*,.pdf"/>
             <button onClick={startCamera} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100">
-              <Camera className="mb-2" /> Use Camera
+              <Camera className="mb-2" /> {t("useCamera")}
             </button>
           </div>
           
           {file && (
             <div className="text-left bg-green-100 p-3 rounded-lg flex items-center">
               <FileCheck className="text-green-700 mr-2" />
-              <p className="text-green-800">Selected: {file.name}</p>
+              <p className="text-green-800">{t("selected")}: {file.name}</p>
             </div>
           )}
 
@@ -161,10 +156,10 @@ export default function PrescriptionUploadPage() {
               disabled={!file || status !== 'idle'}
               className="w-full py-3 bg-indigo-600 text-white rounded-lg font-semibold disabled:bg-gray-400 flex items-center justify-center"
             >
-              {status === 'idle' && "Upload and Process"}
+              {status === 'idle' && t("uploadAndProcess")}
               {(status === 'uploading' || status === 'processing') && <Loader className="animate-spin mr-2" />}
-              {status === 'uploading' && "Uploading to Cloud..."}
-              {status === 'processing' && "Sending to AI for processing..."}
+              {status === 'uploading' && t("uploadingCloud")}
+              {status === 'processing' && t("sendingAI")}
             </button>
           </div>
           {error && <p className="text-red-500 mt-4">{error}</p>}

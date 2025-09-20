@@ -7,7 +7,8 @@ import {
 // 🌐 Import the useLang hook
 import { useLang } from '../../context/LangContext';
 
-const BACKEND_URL = 'http://localhost:5000/api/v1/doctors';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}/doctors`;
+
 
 export default function DoctorAuth() {
     const navigate = useNavigate();

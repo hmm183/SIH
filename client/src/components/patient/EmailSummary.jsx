@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
 export default function EmailSummary({ patientId }) {
   const [isLoading, setIsLoading] = useState(false);

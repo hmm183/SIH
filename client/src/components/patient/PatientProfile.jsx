@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useLang } from "../../context/LangContext";
 import EmailSummary from "./EmailSummary";
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
 // --- Helper Hook for Debouncing Search Input ---
 const useDebounce = (value, delay) => {

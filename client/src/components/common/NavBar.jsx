@@ -67,10 +67,10 @@ const Navbar = () => {
                 {t("home")}
               </a>
               <a
-                href="#about"
+                href="/emergency"
                 className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
               >
-                {t("about")}
+                {t("Emergency")}
               </a>
 
               {/* ✅ Services Dropdown */}

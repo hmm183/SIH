@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLang } from "../../context/LangContext";
 
 // Define the full base URL for your backend API
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`; // e.g., "http://localhost:5000"
 
 // A custom hook for debouncing to prevent excessive API calls while typing
 const useDebounce = (value, delay) => {

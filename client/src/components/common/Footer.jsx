@@ -41,13 +41,13 @@ const Footer = () => {
           {/* Right Side */}
           <div className="col-span-1 text-left md:text-right">
             <a
-              href="#features"
+              href="/#features"
               className="mr-4 hover:text-white transition-colors"
             >
               {translations?.features || "Features"}
             </a>
             <a
-              href="#stats"
+              href="/#stats"
               className="mr-4 hover:text-white transition-colors"
             >
               {translations?.stats || "Stats"}

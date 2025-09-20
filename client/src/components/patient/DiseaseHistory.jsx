@@ -7,7 +7,7 @@ import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadSlim } from '@tsparticles/slim';
 import '../../App.css';
 
-const BACKEND_URL = 'http://localhost:5000/api/v1';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
 
 export default function DiseaseHistory() {
   const { t, language, translateText } = useLang();

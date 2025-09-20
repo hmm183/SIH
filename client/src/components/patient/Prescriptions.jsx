@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Calendar, Stethoscope } from 'lucide-react';
 import { useLang } from '../../context/LangContext'; // 🌐 Import your translation hook
 
-const BACKEND_URL = 'http://localhost:5000/api/v1';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
+
 
 export default function PrescriptionPage() {
   const { t } = useLang();

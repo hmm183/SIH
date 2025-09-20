@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { useLang } from "../../context/LangContext"; // ✅ import LangContext
 
-const BACKEND_URL = "http://localhost:5000/api/v1";
+const BACKEND_URL =  `${process.env.BACKEND_URL}`;
 
 const StatsSection = () => {
   const chartCanvasRef = useRef(null);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:5000/api/v1';
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
 
 export default function HealthSummary({ patientId }) {
   // State to manage the summary content and loading status

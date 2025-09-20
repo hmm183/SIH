@@ -68,7 +68,7 @@ function ThemedApp() {
             />
 
             <Route
-              path="/test-emergency"
+              path="/emergency"
               element={
                 <div className="container mx-auto p-4">
                   <EmergencyManagement patientId="68bae87b0ab9cc9c53ad1efc" />

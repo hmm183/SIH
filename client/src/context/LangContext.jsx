@@ -35,7 +35,7 @@ const languages = [
 ];
 
 // ⚠️ TEMPORARY: Replace with env variable & backend proxy later
-const BACKEND_URL = "http://localhost:5000/api/v1";
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
 
 // 📌 Base English dictionary
 const BASE_TEXTS = {
@@ -71,7 +71,7 @@ const BASE_TEXTS = {
   totalCured: "Total Cured",
   cureRate: "Cure Rate",
   activeCases: "Active Cases",
-  demoNote: "* Demo values – connect to your API to make these live.",
+  demoNote: " ",
   footerTitle: "Migrant Health",
   allRights: "All rights reserved.",
   footerBuiltWith: "Built with React, Tailwind CSS, Chart.js & Three.js.",
@@ -172,7 +172,6 @@ const BASE_TEXTS = {
   markAs: "Mark as",
   noPrescriptionsFound: "No prescriptions found.",
   home: "Home",
-  about: "About",
   services: "Services",
   contact: "Contact",
   doctorSignIn: "Doctor Sign In",
@@ -287,6 +286,7 @@ const BASE_TEXTS = {
   typhoid: "Typhoid",
   //emergency management
   loadingEmergencyInfo: "Loading Emergency Info...",
+  Emergency: "Emergency",
   emergencyCenter: "Emergency Center",
   patientsContacts: "Patient's Contacts",
   noContactsFound: "No emergency contacts found. Click 'Add New' to create one.",
@@ -468,6 +468,42 @@ const BASE_TEXTS = {
   'spottingz_ urination': "spotting urination",
   'spotting_ urination' : "spotting urination",
   processPrescription: "Process Prescription",
+  //prescription list page
+  diseaseSymptomPrediction: "Disease Symptom Prediction",
+  enterSymptoms: "Enter your symptoms",
+  predictButton: "Predict Disease",
+  predictionResult: "Prediction Result",
+  predictionFailed: "Prediction failed. Please try again.",
+  loadingPrediction: "Loading prediction...",
+  selectLanguage: "Select Language",
+  resetButton: "Reset",
+  noSymptomsError: "Please enter at least one symptom",
+  serverError: "Could not connect to the server. Try again later.",
+  viewDetails: "View Details",
+  uploadNew: "Upload New",
+  prescriptionUploadedOn:"Prescription Uploaded On",
+  logout:"Logout",
+  processPrescription: "Process New Prescription",
+    cameraError: "Could not access the camera. Please check permissions.",
+    noFileError: "Please select a file or capture a photo first.",
+    cloudinaryError: "Upload to Cloudinary failed.",
+    authError: "Authentication token not found.",
+    backendError: "Backend failed to accept the file.",
+    capture: "Capture",
+    cancel: "Cancel",
+    uploadFile: "Upload File",
+    useCamera: "Use Camera",
+    selected: "Selected",
+    uploadAndProcess: "Upload and Process",
+    uploadingCloud: "Uploading to Cloud...",
+    sendingAI: "Sending to AI for processing...",
+    name: "Name",
+    dosage: "Dosage",
+    frequency: "Frequency",
+    duration: "Duration",
+    extractionComplete: "Extraction Complete",
+    extractedMedicines: "Extracted Medicines",
+  
 };
 
 // ✅ Updated Translation function with batching

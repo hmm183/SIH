@@ -6,7 +6,8 @@ import StatsSection from "../common/StatsSection";
 import "../../App.css";
 import { useLang } from "../../context/LangContext";
 
-const BACKEND_URL = "http://localhost:5000/api/v1";
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}`;
+
 
 export default function LandingPage() {
   const threeContainerRef = useRef(null);
