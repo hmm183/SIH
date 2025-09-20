@@ -16,7 +16,7 @@ const HotspotMap = () => {
   useEffect(() => {
     const fetchKey = async () => {
       try {
-        const keyRes = await fetch("http://localhost:5000/api/v1/config/maps");
+        const keyRes = await fetch("https://newmediback.onrender.com/api/v1/config/maps");
         const keyData = await keyRes.json();
         setApiKey(keyData.apiKey);
       } catch (err) {
@@ -31,7 +31,7 @@ const HotspotMap = () => {
     const fetchCases = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/v1/hotspots?illnessName=${selectedDisease}`
+          `https://newmediback.onrender.com/api/v1/hotspots?illnessName=${selectedDisease}`
         );
         const cases = await res.json();
         setHotspots(cases);
