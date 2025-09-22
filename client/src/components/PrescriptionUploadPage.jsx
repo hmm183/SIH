@@ -132,13 +132,13 @@ export default function PrescriptionUploadPage() {
           <button onClick={() => { stopCamera(); setMode('select'); }} className="px-6 py-3 bg-gray-500 text-white rounded-lg">{t("cancel")}</button>
         </div>
       ) : (
-        <div className="bg-gray-50 p-8 rounded-lg shadow-md text-center">
+        <div className="bg-gray-50 dark:bg-gray-500 p-8 rounded-lg shadow-md text-center">
           <div className="flex justify-center gap-4 mb-6">
-            <button onClick={() => document.getElementById('file-upload').click()} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100">
+            <button onClick={() => document.getElementById('file-upload').click()} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100 hover:dark:bg-gray-700">
               <Upload className="mb-2" /> {t("uploadFile")}
             </button>
             <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/*,.pdf"/>
-            <button onClick={startCamera} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100">
+            <button onClick={startCamera} className="flex-1 p-4 border-2 border-dashed rounded-lg flex flex-col items-center justify-center hover:bg-gray-100 hover:dark:bg-gray-700">
               <Camera className="mb-2" /> {t("useCamera")}
             </button>
           </div>

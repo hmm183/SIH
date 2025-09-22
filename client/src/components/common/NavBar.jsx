@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaSun, FaMoon } from "react-icons/fa";
+import { FaSun, FaMoon, FaBars, FaTimes } from "react-icons/fa"; // ✅ Added burger icons
 import { useLang } from "../../context/LangContext";
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
 import { useTheme } from "../../context/ThemeContext";
+import { motion, AnimatePresence } from "framer-motion"; // ✅ Animation
 
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useTheme();
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [showMigrantModal, setShowMigrantModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // ✅ Mobile menu state
 
   const { language, setLanguage, t, languages } = useLang();
 
@@ -52,24 +54,18 @@ const Navbar = () => {
     <>
       <nav className="bg-white dark:bg-gray-900 shadow-md fixed w-full z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center text-2xl font-bold text-blue-600 dark:text-blue-400">
               <a href="/">SwiftMediLink</a>
             </div>
 
-            {/* Navbar Links */}
+            {/* Desktop Links */}
             <div className="hidden md:flex space-x-6 items-center">
-              <a
-                href="/"
-                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
-              >
+              <a href="/" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
                 {t("home")}
               </a>
-              <a
-                href="/emergency"
-                className="text-gray-800 dark:text-gray-200 hover:text-blue-500"
-              >
+              <a href="/emergency" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
                 {t("Emergency")}
               </a>
 
@@ -83,35 +79,19 @@ const Navbar = () => {
                 </button>
                 {showServicesMenu && (
                   <div className="absolute left-0 mt-2 w-60 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
-                    <a
-                      href="/disease-prediction"
-                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <a href="/disease-prediction" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("aiAnalyzer1") || "AI Disease Image Analyzer"}
                     </a>
-                    <a
-                      href="/disease-symptom-prediction"
-                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <a href="/disease-symptom-prediction" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("aiAnalyzer2") || "AI Symptom Analyzer"}
                     </a>
-                    <a
-                      href="/hotspot-map"
-                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <a href="/hotspot-map" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("hotspot")}
                     </a>
-                    {/* ✅ New links for Prescriptions */}
-                    <a
-                      href="/prescriptions"
-                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <a href="/prescriptions" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("myPrescriptions") || "My Prescriptions"}
                     </a>
-                    <a
-                      href="/prescription/process"
-                      className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
+                    <a href="/prescription/process" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("processPrescription") || "Process Prescription"}
                     </a>
                   </div>
@@ -122,9 +102,9 @@ const Navbar = () => {
               {doctorToken ? (
                 <button
                   onClick={() => handleLogout("doctor")}
-                  className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  {t("logout") || "Logout"}
+                  Doctor Logout
                 </button>
               ) : (
                 <button
@@ -141,7 +121,7 @@ const Navbar = () => {
                   onClick={() => handleLogout("patient")}
                   className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
                 >
-                  {t("logout") || "Logout"}
+                  Patient Logout
                 </button>
               ) : (
                 <button
@@ -183,19 +163,130 @@ const Navbar = () => {
                 {darkMode ? <FaSun size={20} /> : <FaMoon size={20} />}
               </button>
             </div>
+
+            {/* ✅ Mobile Hamburger Button */}
+            <div className="md:hidden">
+              <button onClick={() => setIsOpen(!isOpen)} className="text-2xl text-gray-800 dark:text-gray-200 focus:outline-none">
+                {isOpen ? <FaTimes /> : <FaBars />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* ✅ Mobile Menu with Animation */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden bg-white dark:bg-gray-900 shadow-md px-4 py-6 space-y-4"
+            >
+              <a href="/" className="block text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                {t("home")}
+              </a>
+              <a href="/emergency" className="block text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                {t("Emergency")}
+              </a>
+              <button
+                onClick={() => setShowServicesMenu(!showServicesMenu)}
+                className="block text-gray-800 dark:text-gray-200 hover:text-blue-500 w-full text-left"
+              >
+                {t("services")} ▼
+              </button>
+              {showServicesMenu && (
+                <div className="pl-4 space-y-2">
+                  <a href="/disease-prediction" className="block text-sm text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                    {t("aiAnalyzer1") || "AI Disease Image Analyzer"}
+                  </a>
+                  <a href="/disease-symptom-prediction" className="block text-sm text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                    {t("aiAnalyzer2") || "AI Symptom Analyzer"}
+                  </a>
+                  <a href="/hotspot-map" className="block text-sm text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                    {t("hotspot")}
+                  </a>
+                  <a href="/prescriptions" className="block text-sm text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                    {t("myPrescriptions") || "My Prescriptions"}
+                  </a>
+                  <a href="/prescription/process" className="block text-sm text-gray-800 dark:text-gray-200 hover:text-blue-500">
+                    {t("processPrescription") || "Process Prescription"}
+                  </a>
+                </div>
+              )}
+
+              {/* Auth Buttons */}
+              {doctorToken ? (
+                <button
+                  onClick={() => handleLogout("doctor")}
+                  className="w-full px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Doctor Logout
+                </button>
+              ) : (
+                <button
+                  onClick={redirectToDocAuth}
+                  className="w-full px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+                >
+                  {t("doctorSignIn")}
+                </button>
+              )}
+
+              {patientToken ? (
+                <button
+                  onClick={() => handleLogout("patient")}
+                  className="w-full px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+                >
+                  Patient Logout
+                </button>
+              ) : (
+                <button
+                  onClick={redirectToAuth}
+                  className="w-full px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                >
+                  {t("patientSignIn")}
+                </button>
+              )}
+
+
+              {/* Language + Theme */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <button
+                    onClick={() => setShowLangMenu(!showLangMenu)}
+                    className="px-3 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    {language.toUpperCase()} ▼
+                  </button>
+                  {showLangMenu && (
+                    <div className="mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.value}
+                          onClick={() => changeLanguage(lang.value)}
+                          className="block px-4 py-2 text-sm w-full text-left hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleThemeAndLightToggle}
+                  className="text-gray-800 dark:text-gray-200 focus:outline-none"
+                >
+                  {darkMode ? <FaSun size={20} /> : <FaMoon size={20} />}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Modals */}
-      <DoctorModal
-        show={showDoctorModal}
-        onClose={() => setShowDoctorModal(false)}
-      />
-      <MigrantModal
-        show={showMigrantModal}
-        onClose={() => setShowMigrantModal(false)}
-      />
+      <DoctorModal show={showDoctorModal} onClose={() => setShowDoctorModal(false)} />
+      <MigrantModal show={showMigrantModal} onClose={() => setShowMigrantModal(false)} />
     </>
   );
 };

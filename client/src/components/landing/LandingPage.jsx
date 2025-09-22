@@ -299,7 +299,7 @@ export default function LandingPage() {
                     {translations?.signIn}
                   </a>
                   <a
-                    href="#stats"
+                    href="/#stats"
                     className="bg-transparent border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-full transition-colors"
                   >
                     {translations?.viewStats}
