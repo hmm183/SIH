@@ -275,7 +275,7 @@ export default function LandingPage() {
   return (
     <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
       {/* HERO */}
-      <header className="relative min-h-[86vh] grid place-items-center overflow-hidden bg-gradient-to-b from-[#eef6ff] to-white dark:from-gray-800 dark:to-gray-950">
+      <header className="relative min-h-[86vh] grid place-items-center overflow-hidden bg-gradient-to-b from-[#eef6ff] to-white dark:from-gray-800 dark:to-gray-950 pt-16">
         <div ref={threeContainerRef} className="absolute inset-0" aria-hidden="true" />
         <div className="relative z-10 max-w-7xl w-full p-4 md:p-8 lg:p-12">
           <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-center">

@@ -108,7 +108,7 @@ export default function PrescriptionListPage() {
                 <div className="flex items-center">
                   <div className="mr-4">{getStatusIcon(p.status)}</div>
                   <div>
-                    <p className="font-semibold text-lg">
+                    <p className="font-semibold text-lg text-gray-600">
                       {t("prescriptionUploadedOn")}{" "}
                       {new Date(p.createdAt).toLocaleDateString()}
                     </p>
