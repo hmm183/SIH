@@ -187,6 +187,8 @@ const BASE_TEXTS = {
   lastUpdate: "Last Update",
   viewProfile: "View Profile",
   noPatientsFound: "No patients currently under treatment.",
+  loadingPatientProfile: "Loading patient profile...",
+  newPrescription: "New Prescription",
   // Patient status translation keys (to be used with the translation function)
   undertreatment: 'Under Treatment',
   discharged: 'Discharged',
@@ -508,7 +510,17 @@ const BASE_TEXTS = {
     duration: "Duration",
     extractionComplete: "Extraction Complete",
     extractedMedicines: "Extracted Medicines",
-  
+  // Appointment Booking Page
+  bookAppointment: "Book Appointment",
+  myAppointments: "My Appointments",
+  appointmentDate: "Appointment Date",
+  upcomingAppointment: "Upcoming Appointments",
+  pastAppointment: "Past Appointments",
+  doctorName: "Doctor Name",
+  loadingAppointments: "Loading appointments...",
+  bookNewAppointment: "Book New Appointment",
+  selectDate: "Select Date",
+  "No upcoming appointments.": "No upcoming appointments.",
 };
 
 // ✅ Updated Translation function with batching

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { Calendar, MessageSquare, Send, Loader } from "lucide-react";
 
 const API_BASE = (process.env.REACT_APP_BACKEND_URL_E || "") // e.g. http://localhost:5000
@@ -140,16 +140,16 @@ export default function BookAppointmentPage() {
         <>
           {doctors.length === 0 && <p className="text-center text-gray-600 mb-4">No doctors found.</p>}
 
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg border">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg border">
             <div className="mb-6">
-              <label className="block text-gray-700 font-bold mb-2">Choose Doctor</label>
+              <label className="block text-gray-700 dark:text-gray-50 font-bold mb-2">Choose Doctor</label>
               <select
                 value={selectedDoctorId}
                 onChange={(e) => setSelectedDoctorId(e.target.value)}
-                className="p-3 w-full border rounded-lg"
+                className="p-3 w-full border rounded-lg bg:dark-gray-50 dark:bg-gray-700"
                 required
               >
-                <option value="">-- Select doctor --</option>
+                <option value="" >-- Select doctor --</option>
                 {doctors.map((d) => (
                   <option key={d._id || d.doctorId} value={d._id || d.doctorId}>
                     {d.name} {d.council ? `(${d.council})` : ""}
@@ -158,11 +158,11 @@ export default function BookAppointmentPage() {
               </select>
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="appointmentDate" className="block text-gray-700 font-bold mb-2">
+            <div className="mb-6 ">
+              <label htmlFor="appointmentDate" className="block  text-gray-700 dark:text-gray-50 font-bold mb-2">
                 Appointment Date & Time
               </label>
-              <div className="relative">
+              <div className="relative ">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="datetime-local"
@@ -171,22 +171,22 @@ export default function BookAppointmentPage() {
                   onChange={(e) => setAppointmentDate(e.target.value)}
                   required
                   min={getMinDateTime()}
-                  className="pl-10 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="pl-10 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg:dark-gray-50 dark:bg-gray-700"
                 />
               </div>
             </div>
 
             <div className="mb-6">
-              <label htmlFor="reason" className="block text-gray-700 font-bold mb-2">Reason for Visit</label>
+              <label htmlFor="reason" className="block text-gray-700 dark:text-gray-50 font-bold mb-2">Reason for Visit</label>
               <div className="relative">
-                <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-400" />
+                <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-800" />
                 <textarea
                   id="reason"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   required
                   rows="4"
-                  className="pl-10 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="pl-10 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400 dark:placeholder-gray-300 dark:text-gray-100 bg:dark-gray-50 dark:bg-gray-700"
                   placeholder="e.g., Follow-up, fever, etc."
                 />
               </div>
@@ -205,6 +205,14 @@ export default function BookAppointmentPage() {
           </form>
         </>
       )}
+      <div className="mt-12 flex justify-center">
+        <Link
+          to="/patient/dashboard"
+          className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          Go to Dashboard
+        </Link>
+      </div>
     </div>
   );
 }

@@ -99,6 +99,13 @@ const Navbar = () => {
                     <a href="/prescription/process" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                       {t("processPrescription") || "Process Prescription"}
                     </a>
+                    <a href="/patient/book-appointment" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      {t("bookAppointment") || "Book Appointment"}
+                    </a>
+                    <a href="/patient/my-appointments" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      {t("myAppointments") || "My Appointments"}
+                    </a>
+
                   </div>
                 )}
               </div>
