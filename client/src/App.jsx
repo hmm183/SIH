@@ -21,6 +21,10 @@ import DiseaseSymptomPrediction from "./components/common/DiseaseSymptomPredicti
 import PrescriptionUploadPage from "./components/PrescriptionUploadPage";
 import PrescriptionResultPage from "./components/PrescriptionResultPage";
 import PrescriptionListPage from "./components/PrescriptionListPage";
+import PatientMedicationSummaryPage from './pages/PatientMedicationSummaryPage'; // ✅ Import the new page
+import BookAppointmentPage from "./pages/BookAppointmentPage";
+import PatientAppointmentsPage from "./pages/PatientAppointmentsPage";
+
 
 // Wrapper to access theme context inside App
 function ThemedApp() {
@@ -55,6 +59,10 @@ function ThemedApp() {
             <Route path="/prescriptions" element={<PrescriptionListPage />} /> {/* <-- Add this new route */}
             <Route path="/prescription/process" element={<PrescriptionUploadPage />} />
             <Route path="/prescription/result/:id" element={<PrescriptionResultPage />} />
+            <Route path="/patient/medication-summary" element={<PatientMedicationSummaryPage />} />
+            <Route path="/patient/book-appointment" element={<BookAppointmentPage />} />
+            <Route path="/patient/my-appointments" element={<PatientAppointmentsPage />} />            
+
 
             <Route
               path="/hotspot-map"

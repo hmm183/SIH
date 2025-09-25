@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { UserCheck, Users, Activity, Search } from "lucide-react";
+import { UserCheck, Users, Activity, Search, CalendarCheck, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useLang } from "../../context/LangContext";
 
 // Define the full base URL for your backend API
 const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`; // e.g., "http://localhost:5000"
@@ -21,9 +20,17 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
+// Simple JWT parser
+const parseJwt = (token) => {
+    try {
+        return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+        return null;
+    }
+};
+
 export default function DoctorDashboard() {
   const navigate = useNavigate();
-  const { language, t, translateText } = useLang();
 
   const [stats, setStats] = useState({
     patientsBeingCured: 0,
@@ -31,7 +38,7 @@ export default function DoctorDashboard() {
     totalPatients: 0,
   });
   const [patients, setPatients] = useState([]);
-  const [translatedPatients, setTranslatedPatients] = useState([]);
+  const [appointments, setAppointments] = useState([]); // State for appointments
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -39,65 +46,56 @@ export default function DoctorDashboard() {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  useEffect(() => {
-    const translatePatients = async () => {
-      if (patients.length === 0 || language === 'en') {
-        setTranslatedPatients(patients.map(p => ({ ...p, translatedStatus: p.status })));
-        return;
-      }
-
-      const statusesToTranslate = [...new Set(patients.map(p => p.status))];
-      try {
-        const translatedStatuses = await translateText(statusesToTranslate, language);
-        const statusMap = new Map();
-        statusesToTranslate.forEach((status, index) => {
-          statusMap.set(status, translatedStatuses[index]);
-        });
-
-        const newTranslatedPatients = patients.map(p => ({
-          ...p,
-          translatedStatus: statusMap.get(p.status) || p.status,
-        }));
-        setTranslatedPatients(newTranslatedPatients);
-      } catch (error) {
-        console.error("Translation of patient statuses failed:", error);
-        setTranslatedPatients(patients.map(p => ({ ...p, translatedStatus: p.status })));
-      }
-    };
-    translatePatients();
-  }, [patients, language, translateText]);
-
+  // Effect for fetching all dashboard data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("doctorAuthToken");
+        if (!token) {
+            navigate('/doctor/login'); // Redirect if no token
+            return;
+        }
+
+        const decodedToken = parseJwt(token);
+        const doctorId = decodedToken?.id; // Assuming the doctor's ID is stored in the 'id' field
+
+        if (!doctorId) {
+            console.error("Could not find Doctor ID in token.");
+            navigate('/doctor/login'); // Redirect if ID is not found
+            return;
+        }
+        
         const headers = {
-          Authorization: token,
+          Authorization: `Bearer ${token}`, // Standard Bearer token format
           "Content-Type": "application/json",
         };
 
-        const statsRes = await fetch(
-          `${BACKEND_URL}/api/v1/patients/statistics`,
-          { headers }
-        );
+        // Fetch stats
+        const statsRes = await fetch(`${BACKEND_URL}/api/v1/patients/statistics`, { headers });
         if (!statsRes.ok) throw new Error("Failed to fetch stats");
         const statsData = await statsRes.json();
         if (statsData.success) setStats(statsData.statistics);
 
-        const patientsRes = await fetch(
-          `${BACKEND_URL}/api/v1/patients?status=under treatment`,
-          { headers }
-        );
+        // Fetch patients
+        const patientsRes = await fetch(`${BACKEND_URL}/api/v1/patients?status=under treatment`, { headers });
         if (!patientsRes.ok) throw new Error("Failed to fetch patients");
         const patientsData = await patientsRes.json();
         setPatients(patientsData);
+        
+        // Fetch appointments
+        const appointmentsRes = await fetch(`${BACKEND_URL}/api/v1/appointments/doctor/${doctorId}`, { headers });
+        if (!appointmentsRes.ok) throw new Error("Failed to fetch appointments");
+        const appointmentsData = await appointmentsRes.json();
+        setAppointments(appointmentsData);
+
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
     };
     fetchData();
-  }, []);
+  }, [navigate]);
 
+  // Effect for searching patients
   useEffect(() => {
     const searchPatients = async () => {
       if (debouncedSearchTerm.length < 2) {
@@ -106,11 +104,11 @@ export default function DoctorDashboard() {
       }
       setIsSearching(true);
       try {
-        const token = localStorage.getItem("authToken");
+        const token = localStorage.getItem("doctorAuthToken");
         const res = await fetch(
           `${BACKEND_URL}/api/v1/patients/search?q=${debouncedSearchTerm}`,
           {
-            headers: { Authorization: token },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
         if (!res.ok) throw new Error("Search failed");
@@ -124,27 +122,49 @@ export default function DoctorDashboard() {
     };
     searchPatients();
   }, [debouncedSearchTerm]);
+  
+  // Handler to update appointment status
+  const handleUpdateAppointmentStatus = async (appointmentId, status) => {
+    try {
+        const token = localStorage.getItem("doctorAuthToken");
+        const res = await fetch(`${BACKEND_URL}/api/v1/appointments/${appointmentId}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ status })
+        });
+
+        if (!res.ok) throw new Error('Failed to update status');
+
+        // Update UI by removing the appointment from the list
+        setAppointments(prev => prev.filter(app => app._id !== appointmentId));
+    } catch (error) {
+        console.error('Error updating appointment status:', error);
+        // You might want to show an error message to the user here
+    }
+  };
 
   const handleSelectPatient = (patient) => {
     navigate(`/patient/${patient._id}`);
   };
-
-  // FIX: Move statCards inside the component body so it gets re-evaluated on every render.
+  
   const statCards = [
     {
-      title: t('totalPatients'),
+      title: "Total Patients",
       value: stats.totalPatients,
       icon: <Users size={42} />,
       color: "from-indigo-500 to-indigo-700",
     },
     {
-      title: t('currentlyTreating'),
+      title: "Currently Treating",
       value: stats.patientsBeingCured,
       icon: <Activity size={42} />,
       color: "from-rose-500 to-rose-700",
     },
     {
-      title: t('patientsDischarged'),
+      title: "Patients Discharged",
       value: stats.patientsDischarged,
       icon: <UserCheck size={42} />,
       color: "from-green-500 to-green-700",
@@ -154,34 +174,34 @@ export default function DoctorDashboard() {
   return (
     <div className="pt-20 p-6 bg-gray-50 min-h-screen dark:bg-gray-900 transition-colors duration-300">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 transition-colors duration-300">
-        {t('doctorDashboard')}
+        Doctor's Dashboard
       </h1>
 
-      {/* Search Bar */}
+      {/* --- MODIFIED SEARCH BAR --- */}
       <motion.div
-        className="relative max-w-lg mb-8"
+        className="relative w-full md:max-w-2xl mb-8" // Made it wider
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800 dark:border-gray-700">
+        <div className="flex items-center border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
           <Search
-            className="ml-3 text-gray-500 dark:text-gray-400"
-            size={20}
+            className="ml-4 text-gray-500 dark:text-gray-400"
+            size={22}
           />
           <input
             type="text"
-            placeholder={t('searchPatientPlaceholder')}
+            placeholder="SEARCH PATIENT NAME TO VIEW PROFILE" // Changed placeholder
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 outline-none dark:bg-gray-800 dark:text-gray-100 placeholder-gray-400"
+            className="w-full px-4 py-3 outline-none dark:bg-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-lg"
           />
         </div>
         {(searchResults.length > 0 || isSearching) && (
           <ul className="absolute w-full mt-1 bg-white dark:bg-gray-800 dark:text-gray-100 border rounded-lg shadow-lg max-h-60 overflow-y-auto z-10 dark:border-gray-700">
             {isSearching ? (
               <li className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                {t('searching')}
+                Searching...
               </li>
             ) : (
               searchResults.map((patient) => (
@@ -209,10 +229,7 @@ export default function DoctorDashboard() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
-            }}
+            whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
           >
             <div>
               <h3 className="text-lg font-semibold">{stat.title}</h3>
@@ -222,6 +239,58 @@ export default function DoctorDashboard() {
           </motion.div>
         ))}
       </div>
+      
+      {/* --- NEW APPOINTMENTS SECTION --- */}
+      <motion.div
+        className="bg-white p-6 rounded-2xl shadow-lg dark:bg-gray-800 transition-colors duration-300 mb-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+      >
+        <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">
+          Upcoming Appointments
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-gray-100 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Reason</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {appointments.length > 0 ? (
+                appointments.map((app, index) => (
+                  <motion.tr 
+                    key={app._id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + index * 0.05 }}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">{app.patientId?.fullName || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">{new Date(app.appointmentDate).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{app.reason}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <button onClick={() => handleUpdateAppointmentStatus(app._id, 'completed')} className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200 mr-4" title="Mark as Completed">
+                        <CalendarCheck size={20} />
+                      </button>
+                      <button onClick={() => handleUpdateAppointmentStatus(app._id, 'cancelled')} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200" title="Cancel Appointment">
+                        <XCircle size={20} />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center py-4 text-gray-500 dark:text-gray-400">No upcoming appointments.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
 
       {/* Patient List */}
       <motion.div
@@ -231,23 +300,23 @@ export default function DoctorDashboard() {
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4 transition-colors duration-300">
-          {t('patientsUnderTreatment')}
+          Patients Under Treatment
         </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead className="bg-gray-100 dark:bg-gray-700 transition-colors duration-300">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('name')}
+                  Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('age')}
+                  Age
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('status')}
+                  Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('lastUpdate')}
+                  Last Update
                 </th>
                 <th className="px-6 py-3"></th>
               </tr>
@@ -258,8 +327,8 @@ export default function DoctorDashboard() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              {translatedPatients.length > 0 ? (
-                translatedPatients.map((patient, index) => (
+              {patients.length > 0 ? (
+                patients.map((patient, index) => (
                   <motion.tr
                     key={patient._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -274,7 +343,7 @@ export default function DoctorDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
-                        {patient.translatedStatus}
+                        {patient.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-300">
@@ -285,7 +354,7 @@ export default function DoctorDashboard() {
                         onClick={() => handleSelectPatient(patient)}
                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors"
                       >
-                        {t('viewProfile')}
+                        View Profile
                       </button>
                     </td>
                   </motion.tr>
@@ -300,7 +369,7 @@ export default function DoctorDashboard() {
                     colSpan="5"
                     className="text-center py-4 text-gray-500 dark:text-gray-400"
                   >
-                    {t('noPatientsFound')}
+                    No patients found.
                   </td>
                 </motion.tr>
               )}
@@ -311,3 +380,4 @@ export default function DoctorDashboard() {
     </div>
   );
 }
+

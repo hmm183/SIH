@@ -200,7 +200,7 @@ export default function DiseasePrediction() {
             const data = await apiResponse.json();
             
             // FIX: Check confidence level here
-            if (data.confidence < 85) {
+            if (data.confidence < 65) {
                 setError(t('lowConfidenceError'));
                 setPredictionResult(null);
             } else {

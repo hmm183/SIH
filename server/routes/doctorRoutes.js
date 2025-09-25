@@ -141,4 +141,18 @@ router.post("/login", express.json(), async (req, res) => {
     }
 });
 
+
+
+router.get("/", async (req, res) => {
+    try {
+        // Fetch all doctors but exclude their passwords for security.
+        const doctors = await Doctor.find({}).select('-password');
+        res.status(200).json(doctors);
+    } catch (error) {
+        console.error('Error fetching all doctors:', error.message);
+        res.status(500).json({ message: 'Server error while fetching doctors.' });
+    }
+});
+
+
 module.exports = router;

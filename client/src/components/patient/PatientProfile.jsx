@@ -1379,7 +1379,7 @@ export default function PatientProfile() {
                       >
                         <div>
                           <p className="font-medium">
-                            {med.translatedName}{" "}
+                            {med.translatedName || med.name || "Unnamed Medicine"}{" "}
                             <span className="text-gray-500 dark:text-gray-400 font-normal">
                               - {med.dosage}
                             </span>

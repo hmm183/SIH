@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaSun, FaMoon, FaBars, FaTimes } from "react-icons/fa"; // ✅ Added burger icons
+import { FaSun, FaMoon, FaBars, FaTimes } from "react-icons/fa";
 import { useLang } from "../../context/LangContext";
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
 import { useTheme } from "../../context/ThemeContext";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ Animation
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom"; // ✅ 1. Import useNavigate
 
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useTheme();
@@ -12,9 +13,10 @@ const Navbar = () => {
   const [showMigrantModal, setShowMigrantModal] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // ✅ Mobile menu state
+  const [isOpen, setIsOpen] = useState(false);
 
   const { language, setLanguage, t, languages } = useLang();
+  const navigate = useNavigate(); // ✅ 2. Initialize useNavigate
 
   const [doctorToken, setDoctorToken] = useState(null);
   const [patientToken, setPatientToken] = useState(null);
@@ -41,13 +43,16 @@ const Navbar = () => {
     window.location.href = "/doctor/auth";
   };
 
+  // ✅ 3. Updated Logout Handler
   const handleLogout = (type) => {
     if (type === "doctor") {
       localStorage.removeItem("doctorAuthToken");
+      setDoctorToken(null); // Instantly update the UI
     } else if (type === "patient") {
       localStorage.removeItem("authToken");
+      setPatientToken(null); // Instantly update the UI
     }
-    window.location.reload();
+    navigate('/'); // Redirect to the homepage
   };
 
   return (
@@ -69,7 +74,7 @@ const Navbar = () => {
                 {t("Emergency")}
               </a>
 
-              {/* ✅ Services Dropdown */}
+              {/* Services Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setShowServicesMenu(!showServicesMenu)}
@@ -164,7 +169,7 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* ✅ Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button */}
             <div className="md:hidden">
               <button onClick={() => setIsOpen(!isOpen)} className="text-2xl text-gray-800 dark:text-gray-200 focus:outline-none">
                 {isOpen ? <FaTimes /> : <FaBars />}
@@ -173,7 +178,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ✅ Mobile Menu with Animation */}
+        {/* Mobile Menu with Animation */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -247,7 +252,6 @@ const Navbar = () => {
                   {t("patientSignIn")}
                 </button>
               )}
-
 
               {/* Language + Theme */}
               <div className="flex justify-between items-center">

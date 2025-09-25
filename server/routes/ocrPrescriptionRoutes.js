@@ -1,15 +1,22 @@
-// routes/ocrPrescriptionRoutes.js
+// server/routes/ocrPrescriptionRoutes.js
 const express = require('express');
 const router = express.Router();
-const { 
-  processOcrPrescription, 
+const {
+  processOcrPrescription,
   getOcrPrescriptionResult,
-  getPrescriptionsForPatient // ✅ CORRECTED: This name now matches the controller export
+  getPrescriptionsForPatient,
+  getOcrPrescriptionCountForPatient, // ✅ Import new function
+  getAllMedicinesForPatient,       // ✅ Import new function
 } = require('../controllers/ocrPrescriptionController');
+const { protect } = require('../middleware/authMiddleware'); // Assuming you have auth middleware
 
-router.post('/', processOcrPrescription);
-router.get('/:id', getOcrPrescriptionResult);
-// The handler name here must also match the imported name
-router.get('/patient/:patientId', getPrescriptionsForPatient); 
+// Existing Routes
+router.post('/', protect, processOcrPrescription);
+router.get('/:id', protect, getOcrPrescriptionResult);
+router.get('/patient/:patientId', protect, getPrescriptionsForPatient);
+
+// ======== ✅ NEW ROUTES ADDED BELOW ========
+router.get('/patient/:patientId/count', protect, getOcrPrescriptionCountForPatient);
+router.get('/patient/:patientId/medicines', protect, getAllMedicinesForPatient);
 
 module.exports = router;

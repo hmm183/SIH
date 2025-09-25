@@ -29,6 +29,7 @@ const emergencyContactRoutes = require('./routes/emergencyContactRoutes');
 const emergencyDoctorRoutes = require('./routes/emergencyDoctorRoutes');
 const emergencyHospitalRoutes = require('./routes/emergencyHospitalRoutes');
 const OcrPrescriptionRoutes = require('./routes/ocrPrescriptionRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 const app = express();
 
 // ... (the rest of your server.js file is correct) ...
@@ -38,6 +39,7 @@ app.use(cors());
 // Mount routers
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/patients", patientRoutes);
+app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/doctors", doctorRoutes);
 app.use("/api/v1/report", reportRoutes);
 app.use("/api/v1/emergency", emergencyRoutes);

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Patient = require('../models/patientModel');
 const DiseaseHistory = require('../models/diseaseHistoryModel');
