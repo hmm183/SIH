@@ -151,8 +151,9 @@ const AuthPage = () => {
       });
       const data = await handleApiResponse(response);
 
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("patientId", data.user?.id);
+      //localStorage.setItem("authToken", data.token);
+      //localStorage.setItem("patientId", data.user?.id);
+      auth.login('patient', data.token, data.user?.id);
       clearStatus();
       navigate("/patient/dashboard");
     } catch (error) {

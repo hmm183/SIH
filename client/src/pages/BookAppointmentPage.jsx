@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { Calendar, MessageSquare, Send, Loader } from "lucide-react";
-
+import {useLang} from "../context/LangContext";
 const API_BASE = (process.env.REACT_APP_BACKEND_URL_E || "") // e.g. http://localhost:5000
 
 export default function BookAppointmentPage() {
   const { doctorId: doctorIdParam } = useParams();       // optional param if you ever pass one
   const location = useLocation();                       // optional state/query fallback
   const navigate = useNavigate();
+  const {t}=useLang();
 
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState(doctorIdParam || "");
@@ -149,7 +150,7 @@ export default function BookAppointmentPage() {
                 className="p-3 w-full border rounded-lg bg:dark-gray-50 dark:bg-gray-700"
                 required
               >
-                <option value="" >-- Select doctor --</option>
+                <option value="" >{t("selectDoctor")}</option>
                 {doctors.map((d) => (
                   <option key={d._id || d.doctorId} value={d._id || d.doctorId}>
                     {d.name} {d.council ? `(${d.council})` : ""}
@@ -160,7 +161,7 @@ export default function BookAppointmentPage() {
 
             <div className="mb-6 ">
               <label htmlFor="appointmentDate" className="block  text-gray-700 dark:text-gray-50 font-bold mb-2">
-                Appointment Date & Time
+                {t("appointmentDateAndTime")}
               </label>
               <div className="relative ">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -177,7 +178,7 @@ export default function BookAppointmentPage() {
             </div>
 
             <div className="mb-6">
-              <label htmlFor="reason" className="block text-gray-700 dark:text-gray-50 font-bold mb-2">Reason for Visit</label>
+              <label htmlFor="reason" className="block text-gray-700 dark:text-gray-50 font-bold mb-2">{t("reasonForVisit")}</label>
               <div className="relative">
                 <MessageSquare className="absolute left-3 top-4 w-5 h-5 text-gray-800" />
                 <textarea
@@ -187,7 +188,7 @@ export default function BookAppointmentPage() {
                   required
                   rows="4"
                   className="pl-10 p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400 dark:placeholder-gray-300 dark:text-gray-100 bg:dark-gray-50 dark:bg-gray-700"
-                  placeholder="e.g., Follow-up, fever, etc."
+                  placeholder={t("e.g., Follow-up, fever, etc.")}
                 />
               </div>
             </div>
@@ -197,7 +198,7 @@ export default function BookAppointmentPage() {
               disabled={loading}
               className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center disabled:bg-indigo-400"
             >
-              {loading ? <Loader className="animate-spin" /> : <><Send className="mr-2 h-5 w-5" /> Confirm Booking</>}
+              {loading ? <Loader className="animate-spin" /> : <><Send className="mr-2 h-5 w-5" /> {t("confirmBooking")}</>}
             </button>
 
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}
@@ -210,7 +211,7 @@ export default function BookAppointmentPage() {
           to="/patient/dashboard"
           className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
         >
-          Go to Dashboard
+          {t("goToDashboard")}
         </Link>
       </div>
     </div>

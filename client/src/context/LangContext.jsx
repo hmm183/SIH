@@ -524,6 +524,24 @@ const BASE_TEXTS = {
   bookNewAppointment: "Book New Appointment",
   selectDate: "Select Date",
   "No upcoming appointments.": "No upcoming appointments.",
+  totalPrescriptions: "Total Prescriptions",
+  medicationSummary:"Medication Summary",
+  medicationSummaryDesc:"Medication Summary Description",
+  processNewPrescription: "Process New Prescription",
+  myPrescriptions:"My Prescriptions",
+  diastolic:"Diastolic",
+  pulse:"Pulse",
+  systolic: "Systolic",
+  weight: "Weight ",
+  seeAllReadings: "See all Readings",
+  goToDashboard:"Go To DashBoard",
+  selectDoctor:"Select Doctor",
+  appointmentDateAndTime:"Appointment Date and Time",
+  reasonForVisit:"Reason For Visit",
+  "e.g., Follow-up, fever, etc.":"e.g., Follow-up, fever, etc.",
+  confirmBooking:"Confirm Booking",
+
+
   //GUIDE.JS TRANSLATION
   // Add these key-value pairs to the BASE_TEXTS object in your LangContext.jsx file.
 

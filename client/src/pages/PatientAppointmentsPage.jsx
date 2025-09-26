@@ -88,7 +88,7 @@ export default function PatientAppointmentsPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-indigo-600">Past Appointments</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-indigo-600">{t("pastAppointment")}</h2>
         {pastAppointments.length ? (
           pastAppointments.map((a) => (
             <div key={a._id} className="mb-4 p-4 border rounded-lg shadow-sm  bg-gray-50 dark:bg-gray-800">
@@ -108,7 +108,7 @@ export default function PatientAppointmentsPage() {
           to="/patient/dashboard"
           className="bg-indigo-700 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
         >
-          Go to Dashboard
+          {t("goToDashboard")}
         </Link>
       </div>
     </div>

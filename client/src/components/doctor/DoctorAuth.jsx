@@ -8,6 +8,7 @@ import {
 import { useLang } from '../../context/LangContext';
 import { useGuide } from "../../context/GuideContext";
 import { guides } from "../../guides";
+import { useAuth } from '../../context/AuthContext';
 
 
 const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}/doctors`;
@@ -17,6 +18,7 @@ export default function DoctorAuth() {
     const navigate = useNavigate();
     // 🌐 Use the useLang hook to access the translation function
     const { t } = useLang();
+    const auth = useAuth();
 
     const [view, setView] = useState("login");
     const [status, setStatus] = useState({ message: "", isError: false });
@@ -125,7 +127,8 @@ export default function DoctorAuth() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message);
 
-            localStorage.setItem('doctorAuthToken', data.token);
+            auth.login('doctor', data.token)
+            //localStorage.setItem('doctorAuthToken', data.token);
             showStatus(t('loginSuccess'));
             setLoading(false);
             setTimeout(() => navigate('/doctor/dashboard'), 1000);

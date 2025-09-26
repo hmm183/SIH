@@ -76,13 +76,22 @@ export default function PatientMedicationSummaryPage() {
             <h1 className="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-100">{t('medicationSummary')}</h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8">{t('medicationSummaryDesc')}</p>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 flex items-center">
-                <BookCopy className="w-10 h-10 text-indigo-500 mr-4" />
-                <div>
-                    <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t('totalPrescriptions')}</h2>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{summary.count}</p>
-                </div>
-            </div>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-8 flex items-center justify-between">
+    <div className="flex items-center">
+        <BookCopy className="w-10 h-10 text-indigo-500 mr-4" />
+        <div>
+            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t('totalPrescriptions')}</h2>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">{summary.count}</p>
+        </div>
+        </div>
+            {/* 👇 NEW BUTTON ADDED HERE */}
+            <a 
+                href="/prescription/process"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition-colors"
+            >
+                {t('processNewPrescription') || 'Process New Rx'}
+            </a>
+        </div>
             
             <div className="space-y-8">
                 {summary.prescriptions.length > 0 ? (
