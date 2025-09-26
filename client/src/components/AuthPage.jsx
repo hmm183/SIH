@@ -3,12 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "../context/LangContext"; // ✅ import LangContext
+import { useAuth } from '../context/AuthContext';
 
 const BACKEND_URL = `${process.env.REACT_APP_BACKEND_URL_E}/auth`;
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const { translations } = useLang(); // ✅ translations hook
+  const auth = useAuth();
 
   const [view, setView] = useState("login");
   const [status, setStatus] = useState({ message: "", isError: false });
@@ -173,7 +175,7 @@ const AuthPage = () => {
         <motion.div key="initiate" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-4 text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{translations.registerWithKyc || "Register with KYC"}</h1>
           <p className="text-gray-600 dark:text-gray-300">{translations.kycDesc || "We'll verify your identity with DigiLocker."}</p>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleInitiateKyc} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleInitiateKyc} className=" start-kyc px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition">
             🚀 {translations.startKyc || "Start KYC Process"}
           </motion.button>
           <p className="mt-2 text-sm text-indigo-600 hover:underline cursor-pointer" onClick={() => setView("login")}>
@@ -185,7 +187,7 @@ const AuthPage = () => {
       {view === "registration" && (
         <motion.div key="registration" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
           {kycUserData && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className=" p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md">
               <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{translations.verifiedDetails || "Your Verified Details"}</h3>
               <p className="text-gray-700 dark:text-gray-300"><strong>{translations.uid || "UID"}:</strong> {kycUserData.uid.slice(0, -4).replace(/./g, "X") + kycUserData.uid.slice(-4)}</p>
               <p className="text-gray-700 dark:text-gray-300"><strong>{translations.name || "Name"}:</strong> {kycUserData.name}</p>
@@ -210,15 +212,15 @@ const AuthPage = () => {
       {view === "login" && (
         <motion.div key="login" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">{translations.login || "Login"}</h1>
-          <motion.form onSubmit={handleLogin} className="space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-            <input type="text" id="uid" placeholder={translations.aadhaarUid || "Aadhaar Number (UID)"} value={loginForm.uid} onChange={handleLoginChange} required className="w-full px-4 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" />
+          <motion.form onSubmit={handleLogin} className="login space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+            <input type="text" id="uid" placeholder={translations.aadhaarUid || "Aadhaar Number (UID)"} value={loginForm.uid} onChange={handleLoginChange} required className=" w-full px-4 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" />
             <input type="text" id="name" placeholder={translations.fullName || "Full Name (as per Aadhaar)"} value={loginForm.name} onChange={handleLoginChange} required className="w-full px-4 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" />
             <input type="password" id="password" placeholder={translations.password || "Password"} value={loginForm.password} onChange={handleLoginChange} required className="w-full px-4 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" />
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="w-full px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition">
               {translations.login || "Login"}
             </motion.button>
           </motion.form>
-          <p className="text-sm text-indigo-600 hover:underline cursor-pointer text-center" onClick={() => setView("initiate")}>
+          <p className="kyc-reg text-sm text-indigo-600 hover:underline cursor-pointer text-center" onClick={() => setView("initiate")}>
             {translations.firstTime || "First time user? Complete KYC to register."}
           </p>
         </motion.div>

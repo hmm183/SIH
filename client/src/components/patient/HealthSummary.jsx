@@ -71,7 +71,7 @@ export default function HealthSummary({ patientId }) {
           <motion.button
             whileHover={{ scale: 1.05 }}
             onClick={handleGenerateSummary}
-            className="mt-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+            className=" mt-4 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
           >
             Regenerate Summary
           </motion.button>

@@ -247,7 +247,7 @@
 //       setGeneratingSummary(false);
 //     }
 //   };
-  
+
 //   const handleStatusUpdate = async (prescriptionId, medicineId, newStatus) => {
 //     const token = localStorage.getItem('authToken');
 //     if (!token) {
@@ -459,7 +459,7 @@
 //               </LineChart>
 //             </ResponsiveContainer>
 //           </div>
-          
+
 //           <Link to="/patient/medication-summary">
 //             <motion.div
 //               className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-300 cursor-pointer"
@@ -898,16 +898,16 @@ export default function PatientDashboard() {
     };
 
     const fetchAppointmentCount = async (patientId) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/appointments/patient/${patientId}/count`);
-          if (res.ok) {
-            const data = await res.json();
-            setAppointmentCount(data.count || 0);
-          }
-        } catch (err) {
-          console.error('Error fetching appointment count:', err);
+      try {
+        const res = await fetch(`${BACKEND_URL}/appointments/patient/${patientId}/count`);
+        if (res.ok) {
+          const data = await res.json();
+          setAppointmentCount(data.count || 0);
         }
-      };
+      } catch (err) {
+        console.error('Error fetching appointment count:', err);
+      }
+    };
 
     fetchHistorySummary(pId);
     fetchPrescriptionsForMedList(pId);
@@ -990,8 +990,13 @@ export default function PatientDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="md:col-span-2 bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6">
-            <h3 className="text-xl font-bold mb-4">{t('dailyReadings')}</h3>
+          <div className="stat-chart md:col-span-2 bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{t('dailyReadings')}</h3>
+              <a href="/patient/readings" className="text-sm font-semibold text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-600 transition-colors duration-200">
+                {t("See All Readings")}
+              </a>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={formattedHealthData}>
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
@@ -1006,10 +1011,10 @@ export default function PatientDashboard() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          
+
           <Link to="/patient/medication-summary">
             <motion.div
-              className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-300 cursor-pointer"
+              className="prescription-list bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-300 cursor-pointer"
               whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center justify-between">
@@ -1024,7 +1029,7 @@ export default function PatientDashboard() {
 
           <Link to="/patient/my-appointments">
             <motion.div
-              className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-300 cursor-pointer"
+              className="appointments-list bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/10 dark:border-gray-700 shadow-lg rounded-2xl p-6 flex flex-col justify-between h-full hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-300 cursor-pointer"
               whileHover={{ scale: 1.05 }}
             >
               <div className="flex items-center justify-between">
@@ -1073,7 +1078,7 @@ export default function PatientDashboard() {
             </ul>
             <motion.button
               whileHover={{ scale: 1.05 }}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="disease-history px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
             >
               <Link to="/patient/history">{t('seeMore')}</Link>
             </motion.button>
@@ -1117,7 +1122,7 @@ export default function PatientDashboard() {
               <button
                 onClick={handleGenerateSummary}
                 disabled={generatingSummary}
-                className={`px-3 py-1 rounded-md text-sm ${generatingSummary ? 'bg-gray-400 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                className={`regenerate-summary-btn px-3 py-1 rounded-md text-sm ${generatingSummary ? ' bg-gray-400 text-white' : 'bg-lime-600 text-white hover:bg-indigo-700'}`}
               >
                 {generatingSummary ? t('generating') : (healthSummary ? t('regenerate') : t('generate'))}
               </button>

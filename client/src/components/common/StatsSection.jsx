@@ -170,7 +170,7 @@ const StatsSection = () => {
               </div>
 
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                {translations.demoNote || "* Demo values – connect to your API to make these live."}
+                {translations.demoNote || "* Demo values - connect to your API to make these live."}
               </div>
             </div>
           </div>

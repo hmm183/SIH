@@ -73,22 +73,22 @@ export default function PatientNotes({
                                     <span className="text-gray-800 dark:text-gray-200">- {note.translatedText || note.noteText}</span>
                                 )}
 
-                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className=" flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     {editingNoteId === note._id ? (
                                         <>
-                                            <button onClick={() => handleUpdateNote(note._id)} className="text-green-500 hover:text-green-400" title={t('save')}>
+                                            <button onClick={() => handleUpdateNote(note._id)} className="edit-note text-green-500 hover:text-green-400" title={t('save')}>
                                                 <Save size={16} />
                                             </button>
-                                            <button onClick={() => { setEditingNoteId(null); setEditingText(''); }} className="text-gray-500 hover:text-gray-400" title={t('cancel')}>
+                                            <button onClick={() => { setEditingNoteId(null); setEditingText(''); }} className=" text-gray-500 hover:text-gray-400" title={t('cancel')}>
                                                 <XCircle size={16} />
                                             </button>
                                         </>
                                     ) : (
                                         <>
-                                            <button onClick={() => { setEditingNoteId(note._id); setEditingText(note.noteText); }} className="text-blue-500 hover:text-blue-400" title={t('edit')}>
+                                            <button onClick={() => { setEditingNoteId(note._id); setEditingText(note.noteText); }} className="edit-note-btn text-blue-500 hover:text-blue-400" title={t('edit')}>
                                                 <Edit size={16} />
                                             </button>
-                                            <button onClick={() => handleDeleteNote(note._id)} className="text-red-500 hover:text-red-400" title={t('delete')}>
+                                            <button onClick={() => handleDeleteNote(note._id)} className="delete-note-btn text-red-500 hover:text-red-400" title={t('delete')}>
                                                 <Trash2 size={16} />
                                             </button>
                                         </>

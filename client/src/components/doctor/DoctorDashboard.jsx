@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { UserCheck, Users, Activity, Search, CalendarCheck, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import {useLang} from "../../context/LangContext";
 // Define the full base URL for your backend API
 const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`; // e.g., "http://localhost:5000"
 
@@ -45,6 +45,7 @@ export default function DoctorDashboard() {
   const [isSearching, setIsSearching] = useState(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const { t }=useLang();
 
   // Effect for fetching all dashboard data
   useEffect(() => {
@@ -179,14 +180,14 @@ export default function DoctorDashboard() {
 
       {/* --- MODIFIED SEARCH BAR --- */}
       <motion.div
-        className="relative w-full md:max-w-2xl mb-8" // Made it wider
+        className=" search-patient relative w-full md:max-w-2xl mb-8" // Made it wider
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+        <div className=" flex items-center border-2 border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
           <Search
-            className="ml-4 text-gray-500 dark:text-gray-400"
+            className="  ml-4 text-gray-500 dark:text-gray-400"
             size={22}
           />
           <input
@@ -201,7 +202,7 @@ export default function DoctorDashboard() {
           <ul className="absolute w-full mt-1 bg-white dark:bg-gray-800 dark:text-gray-100 border rounded-lg shadow-lg max-h-60 overflow-y-auto z-10 dark:border-gray-700">
             {isSearching ? (
               <li className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                Searching...
+                (t{"searching"})
               </li>
             ) : (
               searchResults.map((patient) => (
@@ -242,12 +243,12 @@ export default function DoctorDashboard() {
       
       {/* --- NEW APPOINTMENTS SECTION --- */}
       <motion.div
-        className="bg-white p-6 rounded-2xl shadow-lg dark:bg-gray-800 transition-colors duration-300 mb-8"
+        className="appointment-list bg-white p-6 rounded-2xl shadow-lg dark:bg-gray-800 transition-colors duration-300 mb-8"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
       >
-        <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">
+        <h2 className=" text-2xl font-bold text-gray-700 dark:text-gray-200 mb-4">
           Upcoming Appointments
         </h2>
         <div className="overflow-x-auto">
@@ -294,7 +295,7 @@ export default function DoctorDashboard() {
 
       {/* Patient List */}
       <motion.div
-        className="bg-white p-6 rounded-2xl shadow-lg dark:bg-gray-800 transition-colors duration-300"
+        className="patient-unde-treatment bg-white p-6 rounded-2xl shadow-lg dark:bg-gray-800 transition-colors duration-300"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}

@@ -6,7 +6,7 @@ export default function MedicationList({ t, currentMeds, pastMeds, handleStatusU
     return (
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <motion.div
-                className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-xl border border-white/10 dark:border-gray-700 rounded-2xl shadow-lg p-6"
+                className=" bg-white/20 dark:bg-gray-800/20 backdrop-blur-xl border border-white/10 dark:border-gray-700 rounded-2xl shadow-lg p-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -31,7 +31,7 @@ export default function MedicationList({ t, currentMeds, pastMeds, handleStatusU
                                 <button
                                     onClick={() => handleStatusUpdate(med.prescriptionId, med._id, 'past')}
                                     title={t('markAsPast')}
-                                    className="p-2 rounded-full text-yellow-600 hover:bg-yellow-200 dark:hover:bg-gray-600 transition"
+                                    className="medication-current p-2 rounded-full text-yellow-600 hover:bg-yellow-200 dark:hover:bg-gray-600 transition"
                                 >
                                     <History size={18} />
                                 </button>
@@ -69,7 +69,7 @@ export default function MedicationList({ t, currentMeds, pastMeds, handleStatusU
                                 <button
                                     onClick={() => handleStatusUpdate(med.prescriptionId, med._id, 'current')}
                                     title={t('markAsCurrent')}
-                                    className="p-2 rounded-full text-green-600 hover:bg-green-200 dark:hover:bg-gray-600 transition"
+                                    className="past-medication p-2 rounded-full text-green-600 hover:bg-green-200 dark:hover:bg-gray-600 transition"
                                 >
                                     <RefreshCw size={18} />
                                 </button>

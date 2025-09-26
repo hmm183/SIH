@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react"; // Removed useEffect from imports
 import { FaSun, FaMoon, FaBars, FaTimes } from "react-icons/fa";
 import { useLang } from "../../context/LangContext";
 import MigrantModal from "../modals/MigrantModal";
 import DoctorModal from "../modals/DoctorModal";
 import { useTheme } from "../../context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom"; // ✅ 1. Import useNavigate
+import { useNavigate } from "react-router-dom";
+// ✅ 1. Import useAuth
+import { useAuth } from '../../context/AuthContext'; // Note: Adjust the path if necessary
 
 const Navbar = () => {
   const { darkMode, toggleDarkMode } = useTheme();
@@ -16,15 +18,15 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { language, setLanguage, t, languages } = useLang();
-  const navigate = useNavigate(); // ✅ 2. Initialize useNavigate
+  const navigate = useNavigate();
 
-  const [doctorToken, setDoctorToken] = useState(null);
-  const [patientToken, setPatientToken] = useState(null);
+  // 👇 NEW: Destructure tokens and logout function from AuthContext
+  const { doctorToken, patientToken, logout } = useAuth();
+  // 👆 This replaces the local state and the initial useEffect hook
 
-  useEffect(() => {
-    setDoctorToken(localStorage.getItem("doctorAuthToken"));
-    setPatientToken(localStorage.getItem("authToken"));
-  }, []);
+  // ❌ REMOVED: const [doctorToken, setDoctorToken] = useState(null);
+  // ❌ REMOVED: const [patientToken, setPatientToken] = useState(null);
+  // ❌ REMOVED: useEffect(() => { ... }, []);
 
   const handleThemeAndLightToggle = () => {
     toggleDarkMode();
@@ -43,16 +45,12 @@ const Navbar = () => {
     window.location.href = "/doctor/auth";
   };
 
-  // ✅ 3. Updated Logout Handler
+  // ✅ 3. Simplified Logout Handler
   const handleLogout = (type) => {
-    if (type === "doctor") {
-      localStorage.removeItem("doctorAuthToken");
-      setDoctorToken(null); // Instantly update the UI
-    } else if (type === "patient") {
-      localStorage.removeItem("authToken");
-      setPatientToken(null); // Instantly update the UI
-    }
-    navigate('/'); // Redirect to the homepage
+    // The actual token/ID clearing (localStorage.removeItem) is now handled
+    // inside the AuthContext's `logout` function, which also updates the state.
+    logout(type);
+    navigate('/');
   };
 
   return (
@@ -70,12 +68,12 @@ const Navbar = () => {
               <a href="/" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
                 {t("home")}
               </a>
-              <a href="/emergency" className="text-gray-800 dark:text-gray-200 hover:text-blue-500">
+              <a href="/emergency" className="landing-emergency-btn text-gray-800 dark:text-gray-200 hover:text-blue-500">
                 {t("Emergency")}
               </a>
 
               {/* Services Dropdown */}
-              <div className="relative">
+              <div className="relative landing-services-btn">
                 <button
                   onClick={() => setShowServicesMenu(!showServicesMenu)}
                   className="text-gray-800 dark:text-gray-200 hover:text-blue-500 focus:outline-none"
@@ -110,7 +108,7 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Doctor Auth Button */}
+              {/* Doctor Auth Button - Logic KEPT, uses context data */}
               {doctorToken ? (
                 <button
                   onClick={() => handleLogout("doctor")}
@@ -118,16 +116,23 @@ const Navbar = () => {
                 >
                   Doctor Logout
                 </button>
+              ) : patientToken ? (
+                <a
+                  href="/patient/dashboard"
+                  className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 dashboard-btn"
+                >
+                  Patient Dashboard
+                </a>
               ) : (
                 <button
                   onClick={redirectToDocAuth}
-                  className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+                  className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 landing-doctor-btn"
                 >
                   {t("doctorSignIn")}
                 </button>
               )}
 
-              {/* Patient Auth Button */}
+              {/* Patient Auth Button - Logic KEPT, uses context data */}
               {patientToken ? (
                 <button
                   onClick={() => handleLogout("patient")}
@@ -135,10 +140,17 @@ const Navbar = () => {
                 >
                   Patient Logout
                 </button>
+              ) : doctorToken ? (
+                <a
+                  href="/doctor/dashboard"
+                  className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 dashboard-btn"
+                >
+                  Doctor Dashboard
+                </a>
               ) : (
                 <button
                   onClick={redirectToAuth}
-                  className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700"
+                  className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 landing-signin-btn"
                 >
                   {t("patientSignIn")}
                 </button>
