@@ -156,7 +156,7 @@ export default function DoctorAuth() {
     const renderView = () => (
         <AnimatePresence mode="wait">
             {view === "login" && (
-                <motion.div key="login" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                <motion.div key="login" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6 doc-auth-card">
                     <div className="text-center">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('doctorPortal')}</h1>
                         <p className="text-gray-600 dark:text-gray-300 mt-2">{t('welcomeBack')}</p>

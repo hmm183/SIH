@@ -111,7 +111,7 @@ exports.generateHealthSummary = async (req, res) => {
     `;
     
     // --- FIXED: Reverted to the flash model you have access to ---
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await generateContentWithRetry(model, prompt);
     const summaryText = result.response.text();
 
@@ -199,7 +199,7 @@ exports.queryHealthData = async (req, res) => {
     const prompt = `${context}QUESTION: Based *only* on the provided health data, answer the doctor's question concisely: "${userQuery}"`;
 
     // --- FIXED: Reverted to the flash model you have access to ---
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await generateContentWithRetry(model, prompt);
     const answer = result.response.text();
 
@@ -266,7 +266,7 @@ exports.generateAndEmailSummary = async (req, res) => {
         `;
         
         // 5. Generate summary with AI
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await generateContentWithRetry(model, prompt);
         const summaryText = result.response.text();
 

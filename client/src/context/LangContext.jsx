@@ -560,6 +560,8 @@ const BASE_TEXTS = {
   "guide_doctor_search_patient": "View your patients here",
   "guide_doctor_appointment_list": "Check appointments here",
   "guide_doctor_patient_under_treatment": "View patients under your treatment here",
+  "guide_doctor_auth_form": "RESPECTED JUDGES,\nPREASSIGNED DOCTOR ACCOUNT IS SET FOR YOU TO VIEW OUR PROJECT,\n \nIF YOU WISH YOU CAN CREATE YOUR OWN ACCOUNT THROUGH AN NMC VERIFIED DOCTOR",
+
 
   "guide_public_signin_btn": "Click here to sign in as a patient",
   "guide_public_doctor_btn": "Click here to sign in as a doctor",
@@ -567,6 +569,7 @@ const BASE_TEXTS = {
   "guide_public_emergency_btn": "Check emergency Communication for patients here",
   "guide_public_stats_btn": "Check out our platform usage statistics here",
 
+  "guide_auth_form": "RESPECTED JUDGES,\nPREASSIGNED PATIENT IS SET FOR YOU TO VIEW OUR PROJECT,\n \nIF YOU WISH YOU CAN CREATE YOUR OWN ACCOUNT USING THE SIGNUP PAGE",
   "guide_auth_kyc_reg": "First time user? Complete **DIGILOCKER** KYC and register.",
   "guide_auth_login_uid": "Enter your Aadhaar number here to login.",
   "guide_auth_login_name": "Enter your full name as per your Aadhaar card.",

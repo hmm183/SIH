@@ -119,7 +119,7 @@ const GuideModal = () => {
         style={style}
         className="bg-white dark:bg-gray-900 p-4 rounded shadow-lg max-w-xs z-[10001] opacity-0 animate-fade-in"
       >
-        <p>{t(step.content)}</p>
+        <p style={{ whiteSpace: "pre-line" }}>{t(step.content)}</p>
         <div className="flex justify-end mt-2 space-x-2">
           <button
             onClick={skipGuide}

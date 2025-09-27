@@ -211,7 +211,7 @@ const AuthPage = () => {
       )}
 
       {view === "login" && (
-        <motion.div key="login" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+        <motion.div key="login" variants={cardVariants} initial="hidden" animate="visible" exit="exit" className="pat-auth-card space-y-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center">{translations.login || "Login"}</h1>
           <motion.form onSubmit={handleLogin} className="login space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             <input type="text" id="uid" placeholder={translations.aadhaarUid || "Aadhaar Number (UID)"} value={loginForm.uid} onChange={handleLoginChange} required className=" w-full px-4 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" />

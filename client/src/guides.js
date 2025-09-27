@@ -93,6 +93,11 @@ export const guides = {
     ],
     patientAuth: [
         {
+            target: ".pat-auth-card",
+            content: "guide_auth_form",
+            waitFor: ".pat-auth-card",
+        },
+        {
             target: ".kyc-reg",
             content: "guide_auth_kyc_reg",
         },
@@ -116,6 +121,11 @@ export const guides = {
     ],
 
     doctorAuth: [
+        {
+            target: ".doc-auth-card",
+            content: "guide_doctor_auth_form",
+            waitFor: ".doctor-login-form",
+        },
         {
             target: ".new-reg",
             content: "guide_doctor_auth_new_reg",
