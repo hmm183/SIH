@@ -67,6 +67,10 @@ export const guides = {
 
     public: [
         {
+            target: ".lng-btn",
+            content: "guide_public_language_btn",
+        },
+        {
             target: ".landing-signin-btn",
             content: "guide_public_signin_btn",
         },

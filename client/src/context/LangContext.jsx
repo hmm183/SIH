@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 // 🌍 Supported Languages
 const languages = [
+  { value: "ml", label: "Malayalam" },
   { value: "en", label: "English" },
   { value: "hi", label: "Hindi" },
   { value: "bn", label: "Bengali" },
@@ -16,7 +17,6 @@ const languages = [
   { value: "kn", label: "Kannada" },
   { value: "kok", label: "Konkani" },
   { value: "mai", label: "Maithili" },
-  { value: "ml", label: "Malayalam" },
   { value: "mni-Mtei", label: "Meiteilon (Manipuri)" },
   { value: "ne", label: "Nepali" },
   { value: "or", label: "Odia (Oriya)" },
@@ -582,6 +582,7 @@ const BASE_TEXTS = {
   "guide_doctor_verify_license": "Enter your official NMC{National Medical Council} license number.",
   "guide_doctor_verify_button": "Click here to verify your doctor credentials.",
   "guide_doctor_verify_signup_btn": "After verification, click here to complete your registration",
+  "guide_public_language_btn": "ഭാഷ മാറ്റാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക (Click here to change language)",
   skip:"Skip",
   next:"Next",
 };

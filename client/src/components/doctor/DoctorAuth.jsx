@@ -37,6 +37,15 @@ export default function DoctorAuth() {
     const { startGuide,completedGuides= {} } = useGuide();
 
     useEffect(() => {
+        // Pre-fill the form with default credentials for demonstration
+        setFormData(prevData => ({
+            ...prevData,
+            email: 'doc@gmail.com',
+            password: 'pass',
+        }));
+    }, []); 
+
+    useEffect(() => {
         if (view === "login" && !completedGuides.doctorAuth) {
             startGuide(guides.doctorAuth);
         } else if (view === "verify" && !completedGuides.doctorVerify) {

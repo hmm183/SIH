@@ -16,7 +16,7 @@ const AuthPage = () => {
   const [status, setStatus] = useState({ message: "", isError: false });
   const [kycUserData, setKycUserData] = useState(null);
 
-  const [loginForm, setLoginForm] = useState({ uid: "", name: "", password: "" });
+  const [loginForm, setLoginForm] = useState({ uid: "3395", name: "Priyanshu Upadhyay", password: "pass" });
   const [passwordForm, setPasswordForm] = useState({ password: "", confirmPassword: "", email: "" });
 
   const showStatus = (message, isError = false) => setStatus({ message, isError });
