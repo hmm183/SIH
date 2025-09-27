@@ -3,7 +3,7 @@ import { Mail, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
-export default function EmailSummary({ patientId }) {
+export default function EmailSummary({ patientId }) { // ✅ Correctly receives patientId from props
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' }); // type can be 'success' or 'error'
 
@@ -11,23 +11,23 @@ export default function EmailSummary({ patientId }) {
     setIsLoading(true);
     setFeedback({ message: '', type: '' });
 
-    const token = localStorage.getItem('authToken'); // Ensure you use the correct token key (e.g., 'doctorAuthToken')
+    // ✅ Verifies the DOCTOR'S login status using the doctor's token
+    const token = localStorage.getItem('doctorAuthToken'); // Corrected from 'authToken' for consistency
     if (!token) {
-      setFeedback({ message: 'Authentication error. Please log in.', type: 'error' });
+      setFeedback({ message: 'Authentication error. Please log in as a doctor.', type: 'error' });
       setIsLoading(false);
       return;
     }
 
     try {
-      // ✅ 1. Use the new "generate-and-email" endpoint
       const response = await fetch(`${BACKEND_URL}/api/v1/summary/generate-and-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`, // Sends DOCTOR'S token for authentication
         },
-        // ✅ 2. Send patientId in the request body
-        body: JSON.stringify({ patientId }), 
+        // ✅ Sends the PATIENT'S ID (from the URL via props) in the body
+        body: JSON.stringify({ patientId }),
       });
 
       const data = await response.json();
@@ -49,7 +49,6 @@ export default function EmailSummary({ patientId }) {
     <div className="bg-white p-6 rounded-2xl shadow-lg mt-6">
       <h3 className="text-xl font-bold text-gray-700 mb-4 flex items-center">
         <Mail className="mr-2 text-indigo-500" />
-        {/* ✅ 3. Updated UI text */}
         Generate & Email Summary
       </h3>
       <p className="text-gray-600 mb-4 text-sm">

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useLang } from "../../context/LangContext";
 import EmailSummary from "./EmailSummary";
-const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
+const BACKEND_URL = `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
 // --- Helper Hook for Debouncing Search Input ---
 const useDebounce = (value, delay) => {
@@ -1099,6 +1099,25 @@ export default function PatientProfile() {
     );
   };
 
+  const handleDeleteMedicine = async (prescriptionId, medicineId) => {
+    if (!window.confirm(t("confirmDeleteMedicine  "))) return;
+
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines/${medicineId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!res.ok) throw new Error(t("failedToDeleteMedicine"));
+
+      const updatedPrescription = await res.json();
+      updatePrescriptionInState(updatedPrescription);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const handleAddMedicine = async (prescriptionId, medicineData) => {
     try {
       const res = await fetch(
@@ -1379,7 +1398,9 @@ export default function PatientProfile() {
                       >
                         <div>
                           <p className="font-medium">
-                            {med.translatedName || med.name || "Unnamed Medicine"}{" "}
+                            {med.translatedName ||
+                              med.name ||
+                              "Unnamed Medicine"}{" "}
                             <span className="text-gray-500 dark:text-gray-400 font-normal">
                               - {med.dosage}
                             </span>
@@ -1419,10 +1440,9 @@ export default function PatientProfile() {
                             <Edit size={16} />
                           </button>
                           <button
-                            onClick={() =>
-                              handleMedicineStatusChange(p._id, med._id, "past")
-                            }
+                            onClick={() => handleDeleteMedicine(p._id, med._id)} // 3. Connect the handler here
                             className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full"
+                            title={t("deleteMedicine")} // Add a title for better UX
                           >
                             <Trash2 size={16} />
                           </button>

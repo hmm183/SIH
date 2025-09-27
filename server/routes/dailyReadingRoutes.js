@@ -8,6 +8,7 @@ const {
   addDailyReading,
   updateDailyReading,
   getReadingsForPatient, // <-- Import the new function
+    deleteDailyReading,
 } = require('../controllers/dailyReadingController');
 
 // Define the POST route to add a new reading
@@ -19,5 +20,7 @@ router.get('/patient/:patientId', getReadingsForPatient);
 
 // Define the PUT route to update a reading by its ID
 router.put('/:id', updateDailyReading);
+
+router.delete('/:id', deleteDailyReading);
 
 module.exports = router;

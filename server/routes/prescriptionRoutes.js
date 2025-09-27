@@ -8,7 +8,8 @@ const {
   updateMedicineStatus,
   addMedicineToPrescription,
   updateMedicineDetails,
-  deletePrescription // Ensure this is imported
+  deletePrescription,
+  deleteMedicineFromPrescription // Ensure this is imported
 } = require('../controllers/PrescriptionController');
 
 // Routes for creating a new prescription and getting all for a patient
@@ -23,14 +24,19 @@ router.route('/:id')
   .put(updatePrescription)
   .delete(deletePrescription);
 
-// Routes for adding a new medicine to a prescription
+// Route for adding a new medicine to a prescription
 router.route('/:id/medicines')
   .post(addMedicineToPrescription);
 
-// Routes for a specific medicine within a prescription (Update details and status)
+// Route for updating a specific medicine's details
 router.route('/:prescriptionId/medicines/:medicineId')
   .put(updateMedicineDetails);
 
+// ✅ FIXED: Create a dedicated, explicit route for deleting a medicine
+router.route('/:prescriptionId/medicines/:medicineId')
+  .delete(deleteMedicineFromPrescription);
+
+// Route for updating a specific medicine's status
 router.route('/medicines/:prescriptionId/:medicineId/status')
   .put(updateMedicineStatus);
 

@@ -6,7 +6,8 @@ const {
   getHistoryByPatient,
   updateDiseaseHistory,
   getHistorySummaryByPatient,
-  getDiseaseHotspots
+  getDiseaseHotspots,
+  deleteDiseaseHistory // ✅ 1. Import the delete function
 } = require('../controllers/historyController');
 
 // --- NEW: Route to get disease hotspot locations ---
@@ -25,5 +26,9 @@ router.get('/patient/:patientId', getHistoryByPatient);
 
 // PUT: Update an existing history entry by its unique ID
 router.put('/:id', updateDiseaseHistory);
+
+// ✅ 2. Add the missing DELETE route
+// This route handles requests to delete a specific history entry by its ID
+router.delete('/:id', deleteDiseaseHistory);
 
 module.exports = router;

@@ -149,10 +149,42 @@ export default function DailyReadingsPage() {
     });
   }
 
+  /**
+   * ⭐️ MODIFIED FUNCTION ⭐️
+   * Handles the deletion of a daily reading entry.
+   */
   const handleDeleteReading = async (readingId) => {
-      if (!window.confirm(t('confirmDelete'))) return;
-      alert(t('deleteNotImplemented'));
-  }
+    // 1. Confirm with the user before proceeding
+    if (!window.confirm(t('confirmDelete'))) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        setError(t('authenticationError'));
+        return;
+    }
+
+    try {
+      // 2. Send the DELETE request to the backend API
+      const res = await fetch(`${BACKEND_URL}/readings/${readingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || t('failedToDeleteReading'));
+      }
+
+      // 3. On success, update the UI instantly by removing the item from the state
+      setReadings(prevReadings => prevReadings.filter(reading => reading._id !== readingId));
+
+    } catch (err) {
+      // 4. If anything goes wrong, display the error
+      setError(err.message);
+    }
+  };
 
   const formatDate = (isoString) => new Date(isoString).toLocaleString();
 
