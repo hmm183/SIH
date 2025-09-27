@@ -49,7 +49,7 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
     <div className="bg-white p-6 rounded-2xl shadow-lg mt-6">
       <h3 className="text-xl font-bold text-gray-700 mb-4 flex items-center">
         <Mail className="mr-2 text-indigo-500" />
-        Generate & Email Summary
+        Email Health Delivery Report
       </h3>
       <p className="text-gray-600 mb-4 text-sm">
         This will generate a new, up-to-date health summary from the patient's latest data and email it to their registered address.
@@ -66,7 +66,7 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
             Processing...
           </>
         ) : (
-          'Generate and Email Summary'
+          'AI-Powered Health Report Delivery to Patient'
         )}
       </button>
 
