@@ -34,7 +34,6 @@ function ThemedApp() {
   const { darkMode } = useTheme();
 
   return (
-    
       <Router>
         <GuideProvider>
           <div

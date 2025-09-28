@@ -3,6 +3,7 @@ import StatsSection from './components/common/StatsSection.jsx';
 
 // All 'content' fields are now translation keys (strings without the t() wrapper)
 export const guides = {
+    //paitent dashboard guide steps
     patient: [
         {
             target: ".dashboard-btn",
@@ -46,6 +47,7 @@ export const guides = {
         }
     ],
 
+    //doctor dashboard guide steps
     doctor: [
         {
             target: ".dashboard-btn",
