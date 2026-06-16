@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Loader, Pill, BookCopy, FileText, AlertTriangle, Calendar } from 'lucide-react';
+import { Loader, BookCopy, FileText, AlertTriangle, Calendar } from 'lucide-react';
 import { useLang } from '../context/LangContext';
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react';
@@ -142,6 +142,12 @@ export default function PatientMedicationSummaryPage() {
 
     return (
         <div className="container mx-auto p-8 max-w-4xl pt-24 bg-gray-50 dark:bg-gray-900 min-h-screen">
+            {error && (
+                <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded flex items-center gap-3 mb-6" role="alert">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span>{error}</span>
+                </div>
+            )}
             <h1 className="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-100">{t('medicationSummary')}</h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8">{t('medicationSummaryDesc')}</p>
 
