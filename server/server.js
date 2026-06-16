@@ -11,6 +11,10 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const connectDB = require("./config/db");
 connectDB();
 
+const session = require("express-session");
+const passport = require("passport");
+require("./config/passport"); // Load passport strategy configuration
+
 // --- Continue requiring the rest of your routes ---
 const prescriptionRoutes = require("./routes/prescriptionRoutes");
 const historyRoutes = require("./routes/historyRoutes");
@@ -35,6 +39,15 @@ const app = express();
 // ... (the rest of your server.js file is correct) ...
 app.use(express.json());
 app.use(cors());
+
+// Setup sessions and passport middlewares
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'swiftmedi-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Mount routers
 app.use("/api/v1/auth", authRoutes);

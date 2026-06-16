@@ -23,9 +23,9 @@ export default function MedicationList({ t, currentMeds, pastMeds, handleStatusU
                                 className="flex justify-between items-center bg-gray-100/50 dark:bg-gray-700/50 p-3 rounded-lg hover:scale-[1.02] transition"
                             >
                                 <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{med.name}</p>
+                                    <p className="font-semibold text-gray-900 dark:text-white">{med.translatedName || med.name}</p>
                                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                                        {med.dosage} — {med.frequency}
+                                        {med.translatedDosage || med.dosage} — {med.translatedFrequency || med.frequency}
                                     </p>
                                 </div>
                                 <button
@@ -61,9 +61,9 @@ export default function MedicationList({ t, currentMeds, pastMeds, handleStatusU
                                 className="flex justify-between items-center bg-gray-100/50 dark:bg-gray-700/50 p-3 rounded-lg opacity-70 hover:scale-[1.02] transition"
                             >
                                 <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{med.name}</p>
+                                    <p className="font-semibold text-gray-900 dark:text-white">{med.translatedName || med.name}</p>
                                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                                        {med.dosage} — {med.frequency}
+                                        {med.translatedDosage || med.dosage} — {med.translatedFrequency || med.frequency}
                                     </p>
                                 </div>
                                 <button

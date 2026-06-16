@@ -28,7 +28,7 @@ const Footer = () => {
             </p>
             {/* ✅ Contact Info */}
             <p className="text-sm">
-              <span className="font-semibold">Contact Us:</span>{" "}
+              <span className="font-semibold">{translations?.contactUs || "Contact Us:"}</span>{" "}
               <a
                 href="mailto:vrishank.23bce8373@vitapstudent.ac.in"
                 className="text-blue-400 hover:underline"

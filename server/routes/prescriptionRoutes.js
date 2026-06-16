@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 
 const {
   createPrescription,
@@ -9,8 +10,11 @@ const {
   addMedicineToPrescription,
   updateMedicineDetails,
   deletePrescription,
-  deleteMedicineFromPrescription // Ensure this is imported
+  deleteMedicineFromPrescription
 } = require('../controllers/PrescriptionController');
+
+// Apply auth middleware to all prescription routes
+router.use(protect);
 
 // Routes for creating a new prescription and getting all for a patient
 router.route('/')
@@ -32,7 +36,7 @@ router.route('/:id/medicines')
 router.route('/:prescriptionId/medicines/:medicineId')
   .put(updateMedicineDetails);
 
-// ✅ FIXED: Create a dedicated, explicit route for deleting a medicine
+// Route for deleting a medicine
 router.route('/:prescriptionId/medicines/:medicineId')
   .delete(deleteMedicineFromPrescription);
 

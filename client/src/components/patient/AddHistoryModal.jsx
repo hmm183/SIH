@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Search } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
 // A custom hook for debouncing search input
 const useDebounce = (value, delay) => {
@@ -14,6 +15,7 @@ const useDebounce = (value, delay) => {
 
 
 export default function AddHistoryModal({ patientId, onClose, onSave }) {
+    const { t } = useLang();
     const [formData, setFormData] = useState({
         illnessName: '',
         status: 'ongoing',
@@ -90,17 +92,17 @@ export default function AddHistoryModal({ patientId, onClose, onSave }) {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
-                <h2 className="text-2xl font-bold mb-4">Add New Disease History</h2>
+                <h2 className="text-2xl font-bold mb-4">{t("addNewDiseaseHistory", "Add New Disease History")}</h2>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium">Illness / Condition</label>
+                        <label className="block text-sm font-medium">{t("illnessCondition", "Illness / Condition")}</label>
                         <input type="text" name="illnessName" value={formData.illnessName} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border rounded-md" />
                     </div>
                     {/* Location Search */}
                     <div className="relative">
-                        <label className="block text-sm font-medium">Location / Address</label>
+                        <label className="block text-sm font-medium">{t("locationAddress", "Location / Address")}</label>
                         <div className="flex items-center">
-                            <input type="text" value={addressSearch} onChange={(e) => setAddressSearch(e.target.value)} placeholder="Search for an address" className="mt-1 block w-full px-3 py-2 border rounded-l-md" />
+                            <input type="text" value={addressSearch} onChange={(e) => setAddressSearch(e.target.value)} placeholder={t("searchAddressPlaceholder", "Search for an address")} className="mt-1 block w-full px-3 py-2 border rounded-l-md" />
                             <button onClick={handleGetCurrentLocation} disabled={isLocating} className="bg-blue-500 text-white p-2 mt-1 rounded-r-md disabled:bg-blue-300">
                                 <MapPin size={20}/>
                             </button>
@@ -115,20 +117,20 @@ export default function AddHistoryModal({ patientId, onClose, onSave }) {
                     </div>
                     {/* Other Fields */}
                     <div>
-                        <label className="block text-sm font-medium">Diagnosis Date</label>
+                        <label className="block text-sm font-medium">{t("diagnosisDate", "Diagnosis Date")}</label>
                         <input type="date" name="diagnosisDate" value={formData.diagnosisDate} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border rounded-md" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium">Status</label>
+                        <label className="block text-sm font-medium">{t("status", "Status")}</label>
                         <select name="status" value={formData.status} onChange={handleChange} className="mt-1 block w-full px-3 py-2 border rounded-md">
-                            <option value="ongoing">Ongoing</option>
-                            <option value="resolved">Resolved</option>
+                            <option value="ongoing">{t("ongoing", "Ongoing")}</option>
+                            <option value="resolved">{t("resolved", "Resolved")}</option>
                         </select>
                     </div>
                 </div>
                 <div className="mt-6 flex justify-end space-x-3">
-                    <button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md">Cancel</button>
-                    <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded-md">Save</button>
+                    <button onClick={onClose} className="bg-gray-200 px-4 py-2 rounded-md">{t("cancel", "Cancel")}</button>
+                    <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded-md">{t("save", "Save")}</button>
                 </div>
             </motion.div>
         </div>

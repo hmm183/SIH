@@ -24,7 +24,7 @@ export default function FormattedPrescription({ jsonData }) {
       <header className="flex justify-between items-center pb-4 border-b-2 border-gray-300 dark:border-gray-600">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-800 dark:text-gray-100">{doctorName}</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">General Physician</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t("generalPhysician", "General Physician")}</p>
         </div>
         <Stethoscope className="w-12 h-12 text-indigo-500" />
       </header>
@@ -42,7 +42,7 @@ export default function FormattedPrescription({ jsonData }) {
           <CalendarDays className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           <div>
             <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">{t('age')}</p>
-            <p className="font-bold text-gray-800 dark:text-gray-200">{age ? `${age} years` : 'N/A'}</p>
+            <p className="font-bold text-gray-800 dark:text-gray-200">{age ? `${age} ${t("years", "years")}` : 'N/A'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -84,7 +84,7 @@ export default function FormattedPrescription({ jsonData }) {
 
       {/* Footer / Signature */}
       <footer className="mt-12 text-right">
-        <p className="text-sm text-gray-600 dark:text-gray-400">--- Signature ---</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{t("signature", "--- Signature ---")}</p>
       </footer>
     </div>
   );

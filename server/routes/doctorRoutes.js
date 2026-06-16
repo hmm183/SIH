@@ -132,7 +132,7 @@ router.post("/login", express.json(), async (req, res) => {
   
       res.json({
         success: true,
-        token: `Bearer ${token}`,
+        token: token,
         doctor: { id: doctor._id, name: doctor.name },
       });
     } catch (error) {

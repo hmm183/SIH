@@ -24,8 +24,7 @@ import PrescriptionListPage from "./components/PrescriptionListPage";
 import PatientMedicationSummaryPage from './pages/PatientMedicationSummaryPage'; // ✅ Import the new page
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import PatientAppointmentsPage from "./pages/PatientAppointmentsPage";
-import { GuideProvider } from "./context/GuideContext";
-import GuideModal from "./components/common/GuideModal";
+
 import { AuthProvider } from "./context/AuthContext"
 
 
@@ -35,7 +34,7 @@ function ThemedApp() {
 
   return (
       <Router>
-        <GuideProvider>
+        <>
           <div
             className={
               darkMode
@@ -93,10 +92,9 @@ function ThemedApp() {
             {/* Footer always visible */}
             <Footer />
 
-            {/* Global Guide Modal */}
-              <GuideModal />
+
           </div>
-        </GuideProvider>
+        </>
       </Router>
   );
 }

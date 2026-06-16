@@ -1,5 +1,6 @@
 // src/context/LangContext.jsx
 import React, { createContext, useState, useContext, useEffect } from "react";
+import staticTranslations from "../translations";
 
 // 🌍 Supported Languages
 const languages = [
@@ -107,6 +108,8 @@ const BASE_TEXTS = {
   aadhaarUid: "Aadhaar Number (UID)",
   firstTime: "First time user? Complete KYC to register.",
   emailAddress: "Email Address",
+  or: "OR",
+  continueWithGoogle: "Continue with Google",
 
   // 📋 Patient Dashboard
   healthTrends: "Health Trends",
@@ -230,6 +233,29 @@ const BASE_TEXTS = {
   verifyIdentityButton: "Verify Identity",
   alreadyAccount: "Already have an account?",
   loginSuccess: "Login successful.",
+  verifyingNMC: "Verifying NMC Doctor ID...",
+  verificationSuccess: "Verification successful!",
+  verificationFailed: "Verification failed. Please check your credentials.",
+  chooseUsername: "Choose Username",
+  emailForLogin: "Email Address for Login",
+  createPassword: "Password",
+  processing: "Processing...",
+  council: "Council",
+  loginFailed: "Login failed. Please check your credentials.",
+  registrationFailed: "Registration failed. Please try again.",
+  searchPatientProfilePlaceholder: "SEARCH PATIENT NAME TO VIEW PROFILE",
+  emailReportTitle: "Email Health Delivery Report",
+  emailReportDesc: "This will generate a new, up-to-date health summary from the patient's latest data and email it to their registered address.",
+  reportDeliveryBtn: "AI-Powered Health Report Delivery to Patient",
+  chooseDoctor: "Choose Doctor",
+  loadingDoctors: "Loading doctors...",
+  noDoctorsFoundShort: "No doctors found.",
+  pleaseSelectDoctor: "Please select a doctor.",
+  pleaseChooseAppointmentTime: "Please choose appointment date/time.",
+  appointmentBookedSuccessfully: "Appointment booked successfully.",
+  date: "Date",
+  noPastAppointments: "No past appointments.",
+  completed: "Completed",
   //patient profile
   analyzing: "Analyzing...",
   EnteryourQuestion: "Enter your Question",
@@ -250,7 +276,7 @@ const BASE_TEXTS = {
   medicinesPrescribed: "Medicines Prescribed",
   Hospital: "Hospital",
   remakrs: "Remarks",
-  locationAddress: "Location Address",
+  locationAddress: "Location / Address",
   searchAddress: "Search address...",
   addHistory: "Add History",
   addNewMedicine: "Add New Medicine",
@@ -541,147 +567,280 @@ const BASE_TEXTS = {
   "e.g., Follow-up, fever, etc.":"e.g., Follow-up, fever, etc.",
   confirmBooking:"Confirm Booking",
 
+  // Auth/Login Modals
+  doctorLoginTitle: "Doctor / Health Worker Login",
+  rememberMe: "Remember me",
+  migrantLoginTitle: "Migrant Worker Login",
+  getOtp: "Get OTP",
+  phonePlaceholder: "Enter phone number",
+  close: "Close",
+  emailPlaceholder: "name@example.com",
+  passwordPlaceholder: "••••••••",
 
-  //GUIDE.JS TRANSLATION
-  // Add these key-value pairs to the BASE_TEXTS object in your LangContext.jsx file.
+  // Patient Actions / History
+  addNewDiseaseHistory: "Add New Disease History",
+  illnessCondition: "Illness / Condition",
+  searchAddressPlaceholder: "Search for an address",
 
-  "guide_patient_dashboard_btn": "Click here to go to your Dashboard",
-  "guide_patient_stat_chart": "See your readings here",
-  "guide_patient_prescription_list": "View your prescriptions here",
-  "guide_patient_appointments_list": "Check your appointments here",
-  "guide_patient_medication_current": "This section shows your **Current Medications** and allows you to mark them as 'Past Medication' using the history button (⟲).",
-  "guide_patient_past_medication": "This section shows your **Past Medications** and allows you to mark them as 'Current Medication' using the history button (⟲).",
-  "guide_patient_disease_history": "Click here to see all Disease History",
-  "guide_patient_edit_note": "Use the **Edit** button (✎) to modify any of your existing notes.",
-  "guide_patient_delete_note": "Use the **Delete** button (🗑️) to archive a note you no longer need.",
-  "guide_patient_regenerate_summary": "Click here to **Generate** your AI Health Summary, or **Regenerate** it with the latest data.",
+  // AI Health Summary
+  aiHealthSummary: "AI Health Summary",
+  generatingSummary: "Generating your AI summary, please wait...",
+  anErrorOccurred: "An Error Occurred",
+  regenerateSummary: "Regenerate Summary",
+  generateSummaryDesc: "Generate an AI-powered summary of your health records for a concise overview.",
+  generateMySummary: "Generate My Summary",
+  missingPatientId: "Patient ID is missing. Cannot generate summary.",
+  failedToGenerateSummary: "Failed to generate summary",
 
-  "guide_doctor_dashboard_btn": "Click here to go to your Doctor Dashboard",
-  "guide_doctor_search_patient": "View your patients here",
-  "guide_doctor_appointment_list": "Check appointments here",
-  "guide_doctor_patient_under_treatment": "View patients under your treatment here",
-  "guide_doctor_auth_form": "RESPECTED JUDGES,\nPREASSIGNED DOCTOR ACCOUNT IS SET FOR YOU TO VIEW OUR PROJECT,\n \nIF YOU WISH YOU CAN CREATE YOUR OWN ACCOUNT THROUGH AN NMC VERIFIED DOCTOR",
+  // Navigation / Layout
+  doctorLogout: "Doctor Logout",
+  patientDashboard: "Patient Dashboard",
+  patientLogout: "Patient Logout",
+  contactUs: "Contact Us:",
 
+  // Doctor Dashboard / Appointments
+  upcomingAppointmentsDoctor: "Upcoming Appointments",
+  patientName: "Patient Name",
+  dateAndTime: "Date & Time",
+  actions: "Actions",
+  markAsCompleted: "Mark as Completed",
+  cancelAppointment: "Cancel Appointment",
+  noUpcomingAppointments: "No upcoming appointments.",
 
-  "guide_public_signin_btn": "Click here to sign in as a patient",
-  "guide_public_doctor_btn": "Click here to sign in as a doctor",
-  "guide_public_services_btn": "Explore the services offered by SwiftMediLink",
-  "guide_public_emergency_btn": "Check emergency Communication for patients here",
-  "guide_public_stats_btn": "Check out our platform usage statistics here",
+  // Daily Readings
+  bp: "BP",
+  mmhg: " mmHg",
 
-  "guide_auth_form": "RESPECTED JUDGES,\nPREASSIGNED PATIENT IS SET FOR YOU TO VIEW OUR PROJECT,\n \nIF YOU WISH YOU CAN CREATE YOUR OWN ACCOUNT USING THE SIGNUP PAGE",
-  "guide_auth_kyc_reg": "First time user? Complete **DIGILOCKER** KYC and register.",
-  "guide_auth_login_uid": "Enter your Aadhaar number here to login.",
-  "guide_auth_login_name": "Enter your full name as per your Aadhaar card.",
-  "guide_auth_login_password": "Enter your password here.",
-  "guide_auth_login_submit": "Click here to log in after filling your details.",
-
-  "guide_doctor_auth_new_reg": "VERIFY yourself with NMC{NATIONAL MEDICAL COUNCIL} AND get Registered",
-  "guide_doctor_auth_email": "Enter your registered email address here to log in.",
-  "guide_doctor_auth_password": "Enter your password here.",
-  "guide_doctor_auth_submit": "Click here to sign in to your Doctor Portal after filling your credentials.",
-
-  guide_doctor_verify_nmc_id: "Enter your NMC{National Medical Council} Doctor ID for verification.",
-  "guide_doctor_verify_license": "Enter your official NMC{National Medical Council} license number.",
-  "guide_doctor_verify_button": "Click here to verify your doctor credentials.",
-  "guide_doctor_verify_signup_btn": "After verification, click here to complete your registration",
-  "guide_public_language_btn": "ഭാഷ മാറ്റാൻ ഇവിടെ ക്ലിക്ക് ചെയ്യുക (Click here to change language)",
-  skip:"Skip",
-  next:"Next",
+  // Prescriptions
+  generalPhysician: "General Physician",
+  signature: "--- Signature ---",
+  years: "years",
 };
 
-// ✅ Updated Translation function with batching
-async function translateText(texts, targetLang) {
-  const BATCH_SIZE = 100;
-  let allTranslations = [];
+// ── Client-side translation cache (persisted in localStorage) ──────────────
+const CLIENT_CACHE_KEY = "translationCache";
 
+function _loadClientCache() {
   try {
-    for (let i = 0; i < texts.length; i += BATCH_SIZE) {
-      const batch = texts.slice(i, i + BATCH_SIZE);
-      const response = await fetch(`${BACKEND_URL}/translate`, {
-        method: "POST",
-        body: JSON.stringify({
-          q: batch,
-          target: targetLang,
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server-side translation error:", errorData.error);
-        throw new Error("Translation failed on the server side.");
-      }
-
-      const data = await response.json();
-      allTranslations = allTranslations.concat(data.translations);
-    }
-
-    return allTranslations;
-  } catch (err) {
-    console.error("Frontend translation network error:", err);
-    return Array.isArray(texts) ? texts : [texts];
+    const raw = localStorage.getItem(CLIENT_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
   }
 }
 
+function _saveClientCache(cache) {
+  try {
+    localStorage.setItem(CLIENT_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // localStorage full — silently ignore
+  }
+}
+
+// ── Core translation function ──────────────────────────────────────────────
+async function translateText(texts, targetLang) {
+  // Normalize input: accept both a single string and an array
+  const isString = typeof texts === "string";
+  const textsArray = isString ? [texts] : texts;
+
+  if (!textsArray.length || !targetLang || targetLang === "en") {
+    return textsArray;
+  }
+
+  // Check client cache first
+  const clientCache = _loadClientCache();
+  const langCache = clientCache[targetLang] || {};
+
+  const results = new Array(textsArray.length);
+  const uncached = []; // { idx, text }
+
+  for (let i = 0; i < textsArray.length; i++) {
+    const t = textsArray[i];
+    if (!t || !t.trim()) {
+      results[i] = t;
+    } else if (langCache[t]) {
+      results[i] = langCache[t];
+    } else {
+      uncached.push({ idx: i, text: t });
+    }
+  }
+
+  if (uncached.length === 0) {
+    return results; // everything from cache
+  }
+
+  // Send uncached texts to backend in batches of 50
+  const BATCH_SIZE = 50;
+  const newEntries = {};
+
+  for (let start = 0; start < uncached.length; start += BATCH_SIZE) {
+    const batch = uncached.slice(start, start + BATCH_SIZE);
+    const batchTexts = batch.map((b) => b.text);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      const response = await fetch(`${BACKEND_URL}/translate`, {
+        method: "POST",
+        body: JSON.stringify({ q: batchTexts, target: targetLang }),
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.error("Translation API error:", response.status);
+        // Fill with originals for this batch
+        batch.forEach((b) => { results[b.idx] = b.text; });
+        continue;
+      }
+
+      const data = await response.json();
+      const translated = Array.isArray(data.translations)
+        ? data.translations
+        : [data.translations];
+
+      batch.forEach((b, j) => {
+        const trans = translated[j] || b.text;
+        results[b.idx] = trans;
+        if (trans !== b.text) {
+          newEntries[b.text] = trans;
+        }
+      });
+    } catch (err) {
+      if (err.name === "AbortError") {
+        console.warn("Translation request timed out for batch starting at", start);
+      } else {
+        console.error("Translation network error:", err);
+      }
+      // Fill remaining with originals
+      batch.forEach((b) => { if (results[b.idx] == null) results[b.idx] = b.text; });
+    }
+  }
+
+  // Persist new translations to client cache
+  if (Object.keys(newEntries).length > 0) {
+    const updated = _loadClientCache();
+    if (!updated[targetLang]) updated[targetLang] = {};
+    Object.assign(updated[targetLang], newEntries);
+    _saveClientCache(updated);
+  }
+
+  // Ensure no nulls
+  for (let i = 0; i < results.length; i++) {
+    if (results[i] == null) results[i] = textsArray[i];
+  }
+
+  return results;
+}
+
+// ── Context ────────────────────────────────────────────────────────────────
 const LangContext = createContext();
 export const useLang = () => useContext(LangContext);
 
 export const LangProvider = ({ children }) => {
-  // ✅ Load language from localStorage (fallback: "en")
   const [language, setLanguageState] = useState(
     () => localStorage.getItem("preferredLanguage") || "en"
   );
   const [translations, setTranslations] = useState(BASE_TEXTS);
+  const translatingRef = React.useRef(false);
 
-  // ✅ Custom setter that also saves to localStorage
   const setLanguage = (lang) => {
     setLanguageState(lang);
     localStorage.setItem("preferredLanguage", lang);
   };
 
-  // 🔄 Auto-translate when language changes (skip English)
+  // Auto-translate BASE_TEXTS when language changes
   useEffect(() => {
     if (language === "en") {
       setTranslations(BASE_TEXTS);
       return;
     }
 
+    // Check if we have pre-translated static translations
+    if (staticTranslations && staticTranslations[language] && Object.keys(staticTranslations[language]).length > 0) {
+      setTranslations({
+        ...BASE_TEXTS,
+        ...staticTranslations[language],
+      });
+      return;
+    }
+
+    // Prevent concurrent translation runs (e.g. from hot-reload)
+    if (translatingRef.current) return;
+
     const translateAll = async () => {
+      translatingRef.current = true;
+
       const keys = Object.keys(BASE_TEXTS);
       const values = Object.values(BASE_TEXTS);
 
-      const nonNullValues = values.filter(
-        (text) => text !== null && text !== ""
-      );
-
-      const translated = await translateText(nonNullValues, language);
-      const newTranslations = {};
-
-      let translatedIndex = 0;
+      // Filter out null/empty values
+      const toTranslate = [];
+      const toTranslateKeys = [];
       keys.forEach((key, i) => {
         if (values[i] !== null && values[i] !== "") {
-          newTranslations[key] = translated[translatedIndex];
-          translatedIndex++;
-        } else {
-          newTranslations[key] = values[i];
+          toTranslate.push(values[i]);
+          toTranslateKeys.push(key);
         }
       });
 
-      setTranslations(newTranslations);
+      try {
+        const translated = await translateText(toTranslate, language);
+
+        const newTranslations = { ...BASE_TEXTS };
+        toTranslateKeys.forEach((key, i) => {
+          if (translated[i]) {
+            newTranslations[key] = translated[i];
+          }
+        });
+
+        setTranslations(newTranslations);
+      } catch (err) {
+        console.error("Failed to translate BASE_TEXTS:", err);
+        // Keep current translations (don't reset to English)
+      } finally {
+        translatingRef.current = false;
+      }
     };
 
     translateAll();
   }, [language]);
 
-  // Safe lookup for JSX
-  const t = (key, fallback = key) => translations[key] || fallback;
+  // Safe lookup for JSX with support for fallback values and dynamic options interpolation
+  const t = (key, fallbackOrOptions = key, options = {}) => {
+    let fallback = key;
+    let actualOptions = {};
+
+    if (typeof fallbackOrOptions === "string") {
+      fallback = fallbackOrOptions;
+      actualOptions = options || {};
+    } else if (fallbackOrOptions && typeof fallbackOrOptions === "object") {
+      fallback = key;
+      actualOptions = fallbackOrOptions;
+    }
+
+    let text = translations[key];
+    if (text === undefined || text === null) {
+      text = fallback;
+    }
+
+    if (typeof text === "string" && actualOptions) {
+      Object.keys(actualOptions).forEach((optKey) => {
+        const value = actualOptions[optKey];
+        text = text.replace(new RegExp(`{{\\s*${optKey}\\s*}}`, "g"), value !== undefined && value !== null ? value : "");
+      });
+    }
+
+    return text;
+  };
 
   return (
     <LangContext.Provider
       value={{
         language,
-        setLanguage, // ✅ wrapped setter
+        setLanguage,
         translations,
         setTranslations,
         t,

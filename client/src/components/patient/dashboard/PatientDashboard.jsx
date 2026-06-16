@@ -637,6 +637,75 @@ export default function PatientDashboard() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [patientId, setPatientId] = useState(null);
   const [dailyReadings, setDailyReadings] = useState([]);
+  const [translatedPrescriptions, setTranslatedPrescriptions] = useState([]);
+
+  useEffect(() => {
+    const translatePrescriptions = async () => {
+      if (prescriptions.length === 0 || language === "en") {
+        setTranslatedPrescriptions(
+          prescriptions.map((p) => ({
+            ...p,
+            translatedMedicines: (p.medicines ?? []).map((m) => ({
+              ...m,
+              translatedName: m.name,
+              translatedDosage: m.dosage,
+              translatedFrequency: m.frequency,
+              translatedDuration: m.duration,
+            })),
+          }))
+        );
+        return;
+      }
+      try {
+        const textsToTranslate = [];
+        prescriptions.forEach((p) => {
+          (p.medicines ?? []).forEach((m) => {
+            textsToTranslate.push(m.name || "");
+            textsToTranslate.push(m.dosage || "");
+            textsToTranslate.push(m.frequency || "");
+            textsToTranslate.push(m.duration || "");
+          });
+        });
+
+        const translatedTexts = await translateText(textsToTranslate, language);
+
+        let tIndex = 0;
+        const newTranslatedPrescriptions = prescriptions.map((p) => ({
+          ...p,
+          translatedMedicines: (p.medicines ?? []).map((m) => {
+            const translatedName = translatedTexts[tIndex++] || m.name;
+            const translatedDosage = translatedTexts[tIndex++] || m.dosage;
+            const translatedFrequency = translatedTexts[tIndex++] || m.frequency;
+            const translatedDuration = translatedTexts[tIndex++] || m.duration;
+            return {
+              ...m,
+              translatedName,
+              translatedDosage,
+              translatedFrequency,
+              translatedDuration,
+            };
+          }),
+        }));
+        setTranslatedPrescriptions(newTranslatedPrescriptions);
+      } catch (error) {
+        console.error("Translation of dynamic prescribed medicines failed:", error);
+        setTranslatedPrescriptions(
+          prescriptions.map((p) => ({
+            ...p,
+            translatedMedicines: (p.medicines ?? []).map((m) => ({
+              ...m,
+              translatedName: m.name,
+              translatedDosage: m.dosage,
+              translatedFrequency: m.frequency,
+              translatedDuration: m.duration,
+            })),
+          }))
+        );
+      }
+    };
+
+    translatePrescriptions();
+  }, [prescriptions, language, translateText]);
 
   async function parseResponse(res) {
     const contentType = res.headers.get('content-type') || '';
@@ -899,7 +968,7 @@ export default function PatientDashboard() {
 
     const fetchAppointmentCount = async (patientId) => {
       try {
-        const res = await fetch(`${BACKEND_URL}/appointments/patient/${patientId}/count`);
+        const res = await fetch(`${BACKEND_URL}/appointments/patient/${patientId}/count`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
           const data = await res.json();
           setAppointmentCount(data.count || 0);
@@ -955,11 +1024,11 @@ export default function PatientDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showArchived, patientId]);
 
-  const currentMeds = (prescriptions ?? []).flatMap((p) =>
-    (p.medicines ?? []).filter((m) => m.status === 'current').map((m) => ({ ...m, prescriptionId: p._id }))
+  const currentMeds = (translatedPrescriptions ?? []).flatMap((p) =>
+    (p.translatedMedicines ?? []).filter((m) => m.status === 'current').map((m) => ({ ...m, prescriptionId: p._id }))
   );
-  const pastMeds = (prescriptions ?? []).flatMap((p) =>
-    (p.medicines ?? []).filter((m) => m.status === 'past').map((m) => ({ ...m, prescriptionId: p._id }))
+  const pastMeds = (translatedPrescriptions ?? []).flatMap((p) =>
+    (p.translatedMedicines ?? []).filter((m) => m.status === 'past').map((m) => ({ ...m, prescriptionId: p._id }))
   );
   const activeNotes = notesList.filter((n) => !n.isArchived);
   const archivedNotes = notesList.filter((n) => n.isArchived);
@@ -1004,10 +1073,10 @@ export default function PatientDashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="s" name="Systolic" stroke="#8884d8" />
-                <Line type="monotone" dataKey="d" name="Diastolic" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="w" name="Weight (kg)" stroke="#ffc658" />
-                <Line type="monotone" dataKey="p" name="Pulse" stroke="#ff8042" />
+                <Line type="monotone" dataKey="s" name={t("systolic", "Systolic")} stroke="#8884d8" />
+                <Line type="monotone" dataKey="d" name={t("diastolic", "Diastolic")} stroke="#82ca9d" />
+                <Line type="monotone" dataKey="w" name={t("weightKg", "Weight (kg)")} stroke="#ffc658" />
+                <Line type="monotone" dataKey="p" name={t("pulse", "Pulse")} stroke="#ff8042" />
               </LineChart>
             </ResponsiveContainer>
           </div>

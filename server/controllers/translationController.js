@@ -1,8 +1,6 @@
-const axios = require('axios'); // You'll need to install axios: npm install axios
+const axios = require('axios');
 
-// The API key is securely loaded from your .env file
-const GOOGLE_TRANSLATE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY;
-
+const PYTHON_TRANSLATE_URL = process.env.PYTHON_TRANSLATE_URL || "http://localhost:5005";
 
 exports.translateText = async (req, res) => {
     const { q, target } = req.body;
@@ -10,23 +8,30 @@ exports.translateText = async (req, res) => {
     if (!q || !target) {
         return res.status(400).json({ error: 'Missing text to translate or target language.' });
     }
-    // ✅ Fix: Add a check for an empty array before calling the API
-    if (q.length === 0) {
+
+    // Handle empty arrays
+    if (Array.isArray(q) && q.length === 0) {
         return res.status(200).json({ translations: [] });
+    }
+
+    // Skip translation if target is English
+    if (target === 'en') {
+        return res.status(200).json({ translations: q });
     }
 
     try {
         const response = await axios.post(
-            `https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_TRANSLATE_API_KEY}`,
-            { q, target, format: "text" }
+            `${PYTHON_TRANSLATE_URL}/translate`,
+            { q, target },
+            { timeout: 60000 } // 60s timeout to Python service
         );
 
-        // Extract the translated text and send it back to the client
-        const translations = response.data.data.translations.map(t => t.translatedText);
-        res.status(200).json({ translations });
-
+        res.status(200).json({ translations: response.data.translations });
     } catch (error) {
-        console.error('Error calling Google Translate API:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to translate text.' });
+        const errMsg = error.response ? error.response.data : error.message;
+        console.error('Translation proxy error:', errMsg);
+
+        // On failure, return the original texts so the UI doesn't break
+        res.status(200).json({ translations: q });
     }
 };

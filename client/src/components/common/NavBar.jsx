@@ -142,14 +142,14 @@ const Navbar = () => {
                   onClick={() => handleLogout("doctor")}
                   className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  Doctor Logout
+                  {t("doctorLogout", "Doctor Logout")}
                 </button>
               ) : patientToken ? (
                 <a
                   href="/patient/dashboard"
                   className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 dashboard-btn"
                 >
-                  Patient Dashboard
+                  {t("patientDashboard", "Patient Dashboard")}
                 </a>
               ) : (
                 <button
@@ -166,14 +166,14 @@ const Navbar = () => {
                   onClick={() => handleLogout("patient")}
                   className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
                 >
-                  Patient Logout
+                  {t("patientLogout", "Patient Logout")}
                 </button>
               ) : doctorToken ? (
                 <a
                   href="/doctor/dashboard"
                   className="px-4 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 dashboard-btn"
                 >
-                  Doctor Dashboard
+                  {t("doctorDashboard", "Doctor's Dashboard")}
                 </a>
               ) : (
                 <button
@@ -183,6 +183,8 @@ const Navbar = () => {
                   {t("patientSignIn")}
                 </button>
               )}
+
+
 
               {/* Language Dropdown (Desktop) */}
               <div className="relative">
@@ -306,7 +308,7 @@ const Navbar = () => {
                   onClick={() => handleLogout("doctor")}
                   className="w-full px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
-                  Doctor Logout
+                  {t("doctorLogout", "Doctor Logout")}
                 </button>
               ) : (
                 <button
@@ -322,7 +324,7 @@ const Navbar = () => {
                   onClick={() => handleLogout("patient")}
                   className="w-full px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
                 >
-                  Patient Logout
+                  {t("patientLogout", "Patient Logout")}
                 </button>
               ) : (
                 <button
@@ -333,8 +335,8 @@ const Navbar = () => {
                 </button>
               )}
 
-              {/* Language + Theme */}
-              <div className="flex justify-between items-center">
+              {/* Language + Theme (Mobile) */}
+              <div className="flex justify-between items-center w-full">
                 <div>
                   <button
                     onClick={() => setShowLangMenu(!showLangMenu)}
@@ -356,6 +358,7 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
+
                 <button
                   onClick={handleThemeAndLightToggle}
                   className="text-gray-800 dark:text-gray-200 focus:outline-none"

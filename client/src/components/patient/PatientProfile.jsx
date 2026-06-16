@@ -726,9 +726,13 @@ const Chatbot = ({ patientId, t, language, translateText }) => {
     setIsLoading(true);
 
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch(`${BACKEND_URL}/api/v1/summary/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ patientId, userQuery }),
       });
       if (!res.ok) throw new Error(t("failedToGetAssistantResponse"));
@@ -846,41 +850,59 @@ export default function PatientProfile() {
         setTranslatedPrescriptions(
           prescriptions.map((p) => ({
             ...p,
-            translatedMedicines: p.medicines.map((m) => ({
+            translatedMedicines: (p.medicines ?? []).map((m) => ({
               ...m,
               translatedName: m.name,
+              translatedDosage: m.dosage,
+              translatedFrequency: m.frequency,
+              translatedDuration: m.duration,
             })),
           }))
         );
         return;
       }
       try {
-        const medicineNamesToTranslate = prescriptions.flatMap((p) =>
-          p.medicines.map((m) => m.name)
-        );
+        const textsToTranslate = [];
+        prescriptions.forEach((p) => {
+          (p.medicines ?? []).forEach((m) => {
+            textsToTranslate.push(m.name || "");
+            textsToTranslate.push(m.dosage || "");
+            textsToTranslate.push(m.frequency || "");
+            textsToTranslate.push(m.duration || "");
+          });
+        });
 
-        const translatedNames = await translateText(
-          medicineNamesToTranslate,
-          language
-        );
+        const translatedTexts = await translateText(textsToTranslate, language);
 
-        let translationIndex = 0;
+        let tIndex = 0;
         const newTranslatedPrescriptions = prescriptions.map((p) => ({
           ...p,
-          translatedMedicines: p.medicines.map((m) => ({
-            ...m,
-            translatedName: translatedNames[translationIndex++],
-          })),
+          translatedMedicines: (p.medicines ?? []).map((m) => {
+            const translatedName = translatedTexts[tIndex++] || m.name;
+            const translatedDosage = translatedTexts[tIndex++] || m.dosage;
+            const translatedFrequency = translatedTexts[tIndex++] || m.frequency;
+            const translatedDuration = translatedTexts[tIndex++] || m.duration;
+            return {
+              ...m,
+              translatedName,
+              translatedDosage,
+              translatedFrequency,
+              translatedDuration,
+            };
+          }),
         }));
         setTranslatedPrescriptions(newTranslatedPrescriptions);
       } catch (error) {
-        console.error("Translation of medicine names failed:", error);
+        console.error("Translation of dynamic prescribed medicines failed:", error);
         setTranslatedPrescriptions(
           prescriptions.map((p) => ({
             ...p,
-            translatedMedicines: p.medicines.map((m) => ({
+            translatedMedicines: (p.medicines ?? []).map((m) => ({
               ...m,
               translatedName: m.name,
+              translatedDosage: m.dosage,
+              translatedFrequency: m.frequency,
+              translatedDuration: m.duration,
             })),
           }))
         );
@@ -956,11 +978,13 @@ export default function PatientProfile() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
+        const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const [patientRes, presRes, readRes, histRes] = await Promise.all([
-          fetch(`${BACKEND_URL}/api/v1/patients/${id}`),
-          fetch(`${BACKEND_URL}/api/v1/prescriptions/patient/${id}`),
-          fetch(`${BACKEND_URL}/api/v1/readings/patient/${id}`),
-          fetch(`${BACKEND_URL}/api/v1/history/patient/${id}`),
+          fetch(`${BACKEND_URL}/api/v1/patients/${id}`, { headers }),
+          fetch(`${BACKEND_URL}/api/v1/prescriptions/patient/${id}`, { headers }),
+          fetch(`${BACKEND_URL}/api/v1/readings/patient/${id}`, { headers }),
+          fetch(`${BACKEND_URL}/api/v1/history/patient/${id}`, { headers }),
         ]);
         if (!patientRes.ok) throw new Error(t("failedToFetchPatientDetails"));
         const patientData = await patientRes.json();
@@ -986,7 +1010,7 @@ export default function PatientProfile() {
 
       const res = await fetch(`${BACKEND_URL}/api/v1/history/${historyId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(completeData),
       });
       if (!res.ok) throw new Error(t("failedToUpdateHistory"));
@@ -1014,7 +1038,7 @@ export default function PatientProfile() {
 
       const res = await fetch(`${BACKEND_URL}/api/v1/history`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(completeData),
       });
       if (!res.ok) throw new Error(t("failedToAddNewHistory"));
@@ -1029,8 +1053,11 @@ export default function PatientProfile() {
   const handleDeleteHistory = async (historyId) => {
     if (!window.confirm(t("confirmDeleteHistory"))) return;
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
       const res = await fetch(`${BACKEND_URL}/api/v1/history/${historyId}`, {
         method: "DELETE",
+        headers,
       });
       if (!res.ok) throw new Error(t("failedToDeleteHistory"));
       setHistory(history.filter((item) => item._id !== historyId));
@@ -1054,7 +1081,7 @@ export default function PatientProfile() {
 
       const res = await fetch(`${BACKEND_URL}/api/v1/prescriptions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(completeData),
       });
       if (!res.ok) throw new Error(t("failedToCreatePrescription"));
@@ -1074,10 +1101,13 @@ export default function PatientProfile() {
     }
 
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
       const res = await fetch(
         `${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}`,
         {
           method: "DELETE",
+          headers,
         }
       );
 
@@ -1103,10 +1133,13 @@ export default function PatientProfile() {
     if (!window.confirm(t("confirmDeleteMedicine  "))) return;
 
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
       const res = await fetch(
         `${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines/${medicineId}`,
         {
           method: "DELETE",
+          headers,
         }
       );
       if (!res.ok) throw new Error(t("failedToDeleteMedicine"));
@@ -1120,11 +1153,12 @@ export default function PatientProfile() {
 
   const handleAddMedicine = async (prescriptionId, medicineData) => {
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify(medicineData),
         }
       );
@@ -1143,11 +1177,12 @@ export default function PatientProfile() {
     medicineData
   ) => {
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/prescriptions/${prescriptionId}/medicines/${medicineId}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify(medicineData),
         }
       );
@@ -1166,12 +1201,13 @@ export default function PatientProfile() {
     newStatus
   ) => {
     try {
+      const token = localStorage.getItem("doctorAuthToken") || localStorage.getItem("authToken");
       // --- FIXED: Changed method to PUT and corrected the URL to match the backend route ---
       const res = await fetch(
         `${BACKEND_URL}/api/v1/prescriptions/medicines/${prescriptionId}/${medicineId}/status`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({ status: newStatus }),
         }
       );
@@ -1391,7 +1427,7 @@ export default function PatientProfile() {
                     </div>
                   </div>
                   <ul className="space-y-3">
-                    {p.medicines.map((med) => (
+                    {(p.translatedMedicines || p.medicines || []).map((med) => (
                       <li
                         key={med._id}
                         className="flex items-center justify-between text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 p-2 rounded-md"
@@ -1402,11 +1438,11 @@ export default function PatientProfile() {
                               med.name ||
                               "Unnamed Medicine"}{" "}
                             <span className="text-gray-500 dark:text-gray-400 font-normal">
-                              - {med.dosage}
+                              - {med.translatedDosage || med.dosage}
                             </span>
                           </p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {med.frequency} {t("for")} {med.duration}
+                            {med.translatedFrequency || med.frequency} {t("for")} {med.translatedDuration || med.duration}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">

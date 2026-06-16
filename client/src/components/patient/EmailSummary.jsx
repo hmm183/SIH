@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Mail, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
 const BACKEND_URL =  `${process.env.REACT_APP_BACKEND_WITHOUT_V1}`;
 
 export default function EmailSummary({ patientId }) { // ✅ Correctly receives patientId from props
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState({ message: '', type: '' }); // type can be 'success' or 'error'
+  const { t } = useLang();
 
   const handleSendEmail = async () => {
     setIsLoading(true);
@@ -14,7 +16,7 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
     // ✅ Verifies the DOCTOR'S login status using the doctor's token
     const token = localStorage.getItem('doctorAuthToken'); // Corrected from 'authToken' for consistency
     if (!token) {
-      setFeedback({ message: 'Authentication error. Please log in as a doctor.', type: 'error' });
+      setFeedback({ message: t('authErrorDoctor', 'Authentication error. Please log in as a doctor.'), type: 'error' });
       setIsLoading(false);
       return;
     }
@@ -33,7 +35,7 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'An unknown error occurred.');
+        throw new Error(data.message || t('unknownError', 'An unknown error occurred.'));
       }
 
       setFeedback({ message: data.message, type: 'success' });
@@ -46,13 +48,13 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg mt-6">
-      <h3 className="text-xl font-bold text-gray-700 mb-4 flex items-center">
+    <div className="bg-white p-6 rounded-2xl shadow-lg mt-6 dark:bg-gray-800 border dark:border-gray-700">
+      <h3 className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
         <Mail className="mr-2 text-indigo-500" />
-        Email Health Delivery Report
+        {t('emailReportTitle')}
       </h3>
-      <p className="text-gray-600 mb-4 text-sm">
-        This will generate a new, up-to-date health summary from the patient's latest data and email it to their registered address.
+      <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+        {t('emailReportDesc')}
       </p>
 
       <button
@@ -63,17 +65,17 @@ export default function EmailSummary({ patientId }) { // ✅ Correctly receives 
         {isLoading ? (
           <>
             <Loader2 className="animate-spin mr-2" size={20} />
-            Processing...
+            {t('processing')}
           </>
         ) : (
-          'AI-Powered Health Report Delivery to Patient'
+          t('reportDeliveryBtn')
         )}
       </button>
 
       {/* Feedback Message Area */}
       {feedback.message && (
         <div className={`mt-4 p-3 rounded-lg text-sm flex items-center ${
-          feedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          feedback.type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200'
         }`}>
           {feedback.type === 'success' ? <CheckCircle size={18} className="mr-2" /> : <AlertTriangle size={18} className="mr-2" />}
           {feedback.message}

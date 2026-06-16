@@ -22,36 +22,7 @@ export default function LandingPage() {
   const [chartData, setChartData] = useState({ labels: [], data: [] });
 
   // ✅ useLang hook for translations
-  const { translations, setTranslations } = useLang();
-
-  // ✅ Register texts for translation
-  useEffect(() => {
-    setTranslations({
-      heroTag: "SwiftMediLink • Fast, Secure Patient Transfers",
-      heroHeading: "Medical Records Ready Before Arrival",
-      heroDesc:
-        "With Aadhaar verification & AI-powered record extraction, doctors receive clean, actionable data before the stretcher arrives. Every second counts — SwiftMediLink saves lives.",
-      signIn: "Sign in",
-      viewStats: "View stats",
-      smarterCare: "Smarter Care Journeys",
-      smarterCareDesc:
-        "From diagnosis to treatment, every step powered by connected records.",
-      multilingual: "Multilingual",
-      multilingualDesc: "Hindi • Bengali • Tamil • Malayalam • English",
-      featuresHeading: "What you can do",
-      featuresDesc:
-        "Scan a QR health ID, add visit records, update vaccinations, and view analytics. Built with React, Tailwind CSS, Chart.js & Three.js for a fast, responsive web experience.",
-      feature1: "Unified Health Records",
-      feature1Desc:
-        "Access your complete medical history in one place, including lab results, prescriptions, and past treatments.",
-      feature2: "Seamless Hospital Transfers",
-      feature2Desc:
-        "Quick and secure sharing of patient data between hospitals using the FHIR API for continuity of care.",
-      feature3: "Interactive Patient Dashboard",
-      feature3Desc:
-        "Patients can track their health records, upcoming appointments, and reports with a clean, user-friendly dashboard.",
-    });
-  }, [setTranslations]);
+  const { t } = useLang();
 
   // 🔄 Fetch backend data
   useEffect(() => {
@@ -283,26 +254,26 @@ export default function LandingPage() {
             <div className="col-span-1">
               <div className="p-4 sm:p-6 md:p-8 bg-white/85 dark:bg-gray-900/80 backdrop-blur-md border border-gray-900/10 dark:border-gray-100/10 shadow-xl rounded-2xl">
                 <span className="bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-slate-700 rounded-full px-3 py-1 inline-block mb-3 text-sm">
-                  {translations?.heroTag}
+                  {t("heroTag")}
                 </span>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
-                  {translations?.heroHeading}
+                  {t("heroHeading")}
                 </h1>
                 <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6">
-                  {translations?.heroDesc}
+                  {t("heroDesc")}
                 </p>
                 <div className="flex gap-2">
                   <a
                     href="/auth"
                     className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition-colors"
                   >
-                    {translations?.signIn}
+                    {t("signIn")}
                   </a>
                   <a
                     href="/#stats"
                     className="stats-btn bg-transparent border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-full transition-colors"
                   >
-                    {translations?.viewStats}
+                    {t("viewStats")}
                   </a>
                 </div>
               </div>
@@ -317,7 +288,7 @@ export default function LandingPage() {
                     {registeredTotal.toLocaleString()}
                   </div>
                   <div className="text-gray-500 dark:text-gray-400 text-sm">
-                    {translations?.registered || "Registered"}
+                    {t("registered")}
                   </div>
                 </div>
 
@@ -327,7 +298,7 @@ export default function LandingPage() {
                     {beingCuredTotal.toLocaleString()}
                   </div>
                   <div className="text-gray-500 dark:text-gray-400 text-sm">
-                    {translations?.beingCured || "Being Cured"}
+                    {t("beingCured")}
                   </div>
                 </div>
 
@@ -337,7 +308,7 @@ export default function LandingPage() {
                     {curedTotal.toLocaleString()}
                   </div>
                   <div className="text-gray-500 dark:text-gray-400 text-sm">
-                    {translations?.cured || "Cured"}
+                    {t("cured")}
                   </div>
                 </div>
 
@@ -347,11 +318,10 @@ export default function LandingPage() {
                     <i className="bi bi-shield-lock text-3xl text-blue-600" />
                     <div>
                       <div className="font-semibold">
-                        {translations?.smarterCare || "Smarter Care Journeys"}
+                        {t("smarterCare")}
                       </div>
                       <div className="text-gray-500 dark:text-gray-400 text-sm">
-                        {translations?.smarterCareDesc ||
-                          "From diagnosis to treatment, every step powered by connected records."}
+                        {t("smarterCareDesc")}
                       </div>
                     </div>
                   </div>
@@ -360,11 +330,10 @@ export default function LandingPage() {
                     <i className="bi bi-translate text-3xl text-blue-600" />
                     <div>
                       <div className="font-semibold">
-                        {translations?.multilingual || "Multilingual"}
+                        {t("multilingual")}
                       </div>
                       <div className="text-gray-500 dark:text-gray-400 text-sm">
-                        {translations?.multilingualDesc ||
-                          "Hindi • Bengali • Tamil • Malayalam • English"}
+                        {t("multilingualDesc")}
                       </div>
                     </div>
                   </div>
@@ -382,33 +351,33 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-4 mb-8">
             <div className="col-span-1">
               <h2 className="text-3xl sm:text-4xl font-extrabold">
-                {translations?.featuresHeading}
+                {t("featuresHeading")}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mt-2">
-                {translations?.featuresDesc}
+                {t("featuresDesc")}
               </p>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md h-full">
               <i className="bi bi-qr-code text-5xl mb-4 text-blue-600" />
-              <h5 className="font-bold text-xl mb-2">{translations?.feature1}</h5>
+              <h5 className="font-bold text-xl mb-2">{t("feature1")}</h5>
               <p className="text-gray-600 dark:text-gray-300">
-                {translations?.feature1Desc}
+                {t("feature1Desc")}
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md h-full">
               <i className="bi bi-journal-medical text-5xl mb-4 text-blue-600" />
-              <h5 className="font-bold text-xl mb-2">{translations?.feature2}</h5>
+              <h5 className="font-bold text-xl mb-2">{t("feature2")}</h5>
               <p className="text-gray-600 dark:text-gray-300">
-                {translations?.feature2Desc}
+                {t("feature2Desc")}
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md h-full">
               <i className="bi bi-graph-up-arrow text-5xl mb-4 text-blue-600" />
-              <h5 className="font-bold text-xl mb-2">{translations?.feature3}</h5>
+              <h5 className="font-bold text-xl mb-2">{t("feature3")}</h5>
               <p className="text-gray-600 dark:text-gray-300">
-                {translations?.feature3Desc}
+                {t("feature3Desc")}
               </p>
             </div>
           </div>

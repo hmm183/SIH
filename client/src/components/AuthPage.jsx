@@ -33,6 +33,35 @@ const AuthPage = () => {
   useEffect(() => {
     const initializeFlow = async () => {
       clearStatus();
+
+      // Check URL parameters for Google OAuth callback info
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      const patientId = params.get("patientId");
+      const error = params.get("error");
+
+      if (error) {
+        showStatus(
+          error === "AuthenticationFailed"
+            ? "Google authentication failed. Please try again."
+            : error === "Unauthorized"
+            ? "You are not authorized."
+            : `Authentication error: ${error}`,
+          true
+        );
+        // Clean URL params so they don't linger on refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (token && patientId) {
+        showStatus("Google login successful! Redirecting...");
+        auth.login('patient', token, patientId);
+        // Clean URL params
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+          navigate("/patient/dashboard");
+        }, 1000);
+        return;
+      }
+
       const sessionId = sessionStorage.getItem("digilockerSessionId");
       const accessToken = sessionStorage.getItem("digilockerAccessToken");
 
@@ -161,6 +190,10 @@ const AuthPage = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${BACKEND_URL}/google`;
+  };
+
   const handleLoginChange = (e) => setLoginForm({ ...loginForm, [e.target.id]: e.target.value });
   const handlePasswordChange = (e) => setPasswordForm({ ...passwordForm, [e.target.id]: e.target.value });
 
@@ -221,6 +254,42 @@ const AuthPage = () => {
               {translations.login || "Login"}
             </motion.button>
           </motion.form>
+
+          {/* Divider */}
+          <div className="flex items-center my-4">
+            <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+            <span className="flex-shrink mx-4 text-gray-400 text-sm font-medium">{translations.or || "OR"}</span>
+            <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+          </div>
+
+          {/* Google Login Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 px-6 py-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-lg shadow-sm transition font-medium"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69a5.74 5.74 0 0 1-2.49 3.77v3.13h4.01c2.34-2.16 3.69-5.35 3.69-8.75z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-4.01-3.13c-1.11.75-2.53 1.19-3.95 1.19-3.05 0-5.64-2.06-6.56-4.83H1.36v3.23C3.33 21.6 7.42 24 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.44 14.32a7.18 7.18 0 0 1 0-4.64V6.45H1.36a11.93 11.93 0 0 0 0 11.1l4.08-3.23z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.42 0 3.33 2.4 1.36 6.45l4.08 3.23c.92-2.77 3.51-4.83 6.56-4.83z"
+              />
+            </svg>
+            {translations.continueWithGoogle || "Continue with Google"}
+          </motion.button>
+
           <p className="kyc-reg text-sm text-indigo-600 hover:underline cursor-pointer text-center" onClick={() => setView("initiate")}>
             {translations.firstTime || "First time user? Complete KYC to register."}
           </p>

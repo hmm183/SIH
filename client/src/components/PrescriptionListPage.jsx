@@ -113,7 +113,7 @@ export default function PrescriptionListPage() {
                       {new Date(p.createdAt).toLocaleDateString()}
                     </p>
                     <p className="text-sm text-gray-600 capitalize">
-                      {t("status")}: {p.status}
+                      {t("status")}: {t(p.status, p.status)}
                     </p>
                   </div>
                 </div>

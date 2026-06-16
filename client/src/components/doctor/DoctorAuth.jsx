@@ -6,8 +6,7 @@ import {
 } from 'lucide-react';
 // 🌐 Import the useLang hook
 import { useLang } from '../../context/LangContext';
-import { useGuide } from "../../context/GuideContext";
-import { guides } from "../../guides";
+
 import { useAuth } from '../../context/AuthContext';
 
 
@@ -34,7 +33,7 @@ export default function DoctorAuth() {
 
     const showStatus = (message, isError = false) => setStatus({ message, isError });
     const clearStatus = () => setStatus({ message: "", isError: false });
-    const { startGuide,completedGuides= {} } = useGuide();
+
 
     useEffect(() => {
         // Pre-fill the form with default credentials for demonstration
@@ -45,13 +44,7 @@ export default function DoctorAuth() {
         }));
     }, []); 
 
-    useEffect(() => {
-        if (view === "login" && !completedGuides.doctorAuth) {
-            startGuide(guides.doctorAuth);
-        } else if (view === "verify" && !completedGuides.doctorVerify) {
-            startGuide(guides.doctorVerifyGuide);
-        }
-    }, [view, startGuide, completedGuides]);
+
 
     useEffect(() => {
         clearStatus();

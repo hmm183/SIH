@@ -241,7 +241,7 @@ export default function DailyReadingsPage() {
                       <div className="flex justify-between items-start">
                           <div>
                               <p className="font-semibold text-lg text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                                  <Droplets className="text-red-500" size={20} /> BP: {reading.bloodPressure.systolic} / {reading.bloodPressure.diastolic} mmHg
+                                  <Droplets className="text-red-500" size={20} /> {t("bp", "BP")}: {reading.bloodPressure.systolic} / {reading.bloodPressure.diastolic}{t("mmhg", " mmHg")}
                               </p>
                               <div className="flex gap-4 mt-2 text-gray-600 dark:text-gray-300">
                                   <span className="flex items-center gap-1"><HeartPulse size={16} /> {reading.pulseRate} {t('bpm')}</span>

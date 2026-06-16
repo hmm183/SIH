@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { useLang } from "../../context/LangContext";
 
@@ -175,7 +176,7 @@ function DiseaseSymptomPrediction() {
   const [prediction, setPrediction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { t } = useLang(); // ✅ use translations
+  const { t, language, translateText } = useLang(); // ✅ use translations and translateText
 
   const handleSymptomToggle = (symptom) => {
     setSelectedSymptoms((prev) => {
@@ -203,9 +204,9 @@ function DiseaseSymptomPrediction() {
     setPrediction(null);
 
     const postUrl =
-      "https://raushan2709-disease-prediction-workers.hf.space/gradio_api/call/predict";
+      "https://hmm183-disease-prediction-workers.hf.space/predict";
     const getUrlBase =
-      "https://raushan2709-disease-prediction-workers.hf.space/gradio_api/call/predict/";
+      "https://hmm183-disease-prediction-workers.hf.space/predict/";
 
     try {
       const postResponse = await fetch(postUrl, {
@@ -234,21 +235,20 @@ function DiseaseSymptomPrediction() {
       let buffer = "";
       let predictionFound = false;
 
-      const processLine = (line) => {
+      const processLine = async (line) => {
         if (line.startsWith("data:")) {
           try {
             const eventJson = JSON.parse(line.substring(5));
             if (Array.isArray(eventJson) && eventJson.length > 0) {
-              // dynamically translate the disease
-              const translated = t(eventJson[0]) !== eventJson[0] ? t(eventJson[0]) : eventJson[0];
-              setPrediction(translated);
+              const rawPred = eventJson[0];
+              const translated = await translateText(rawPred, language);
+              setPrediction(translated[0] || rawPred);
               predictionFound = true;
             } else if (eventJson.msg === "process_completed") {
               if (eventJson.success) {
-                const translated = t(eventJson.output.data[0]) !== eventJson.output.data[0]
-                  ? t(eventJson.output.data[0])
-                  : eventJson.output.data[0];
-                setPrediction(translated);
+                const rawPred = eventJson.output.data[0];
+                const translated = await translateText(rawPred, language);
+                setPrediction(translated[0] || rawPred);
                 predictionFound = true;
               } else {
                 setError(t("predictionFailed"));
@@ -269,14 +269,14 @@ function DiseaseSymptomPrediction() {
         buffer = lines.pop();
 
         for (const line of lines) {
-          processLine(line);
+          await processLine(line);
           if (predictionFound) break;
         }
         if (predictionFound) break;
       }
 
       if (!predictionFound && buffer) {
-        processLine(buffer);
+        await processLine(buffer);
       }
 
       if (!predictionFound) {
@@ -408,8 +408,7 @@ function DiseaseSymptomPrediction() {
                   {t("potentialDiagnosis")}
                 </h3>
                 <p className="text-2xl font-bold text-white capitalize">
-                  {t(prediction)}
-
+                  {prediction}
                 </p>
                 <span className="text-xs text-gray-400 mt-2 block">
                   {t("disclaimer")}

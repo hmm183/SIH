@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 
 const {
   createDiseaseHistory,
@@ -7,11 +8,13 @@ const {
   updateDiseaseHistory,
   getHistorySummaryByPatient,
   getDiseaseHotspots,
-  deleteDiseaseHistory // ✅ 1. Import the delete function
+  deleteDiseaseHistory
 } = require('../controllers/historyController');
 
-// --- NEW: Route to get disease hotspot locations ---
-// Example: GET /api/v1/history/hotspots?disease=Flu&lat=28.6139&lng=77.2090&radius=10
+// Apply auth middleware to all history routes
+router.use(protect);
+
+// --- Route to get disease hotspot locations ---
 router.get('/hotspots', getDiseaseHotspots);
 
 // POST: Create a new history entry
@@ -21,14 +24,12 @@ router.post('/', createDiseaseHistory);
 router.get('/patient/:patientId/summary', getHistorySummaryByPatient);
 
 // GET: Get the full history for a patient
-// This route is placed after the more specific '/summary' route to avoid conflicts
 router.get('/patient/:patientId', getHistoryByPatient);
 
 // PUT: Update an existing history entry by its unique ID
 router.put('/:id', updateDiseaseHistory);
 
-// ✅ 2. Add the missing DELETE route
-// This route handles requests to delete a specific history entry by its ID
+// DELETE: Delete a specific history entry by its ID
 router.delete('/:id', deleteDiseaseHistory);
 
 module.exports = router;

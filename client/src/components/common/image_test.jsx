@@ -188,7 +188,7 @@ export default function DiseasePrediction() {
             const formData = new FormData();
             formData.append("file", blob, "skin_image.jpg");
             
-            const apiResponse = await fetch("https://Raushan2709-Disease-Detection.hf.space/predict", {
+            const apiResponse = await fetch("https://hmm183-skin-disease-detection.hf.space/predict", {
                 method: "POST",
                 body: formData,
             });

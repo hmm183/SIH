@@ -45,33 +45,4 @@
   width: 600px;   /* adjust as needed */
   height: 600px;  /* adjust as needed */
 }
-
-
-/* Highlight effect for buttons in guide */
-.guide-highlight {
-  position: relative;
-  z-index: 10005; /* above overlay */
-  animation: pulse 1.2s infinite;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
-  border-radius: 0.375rem; /* match your button rounding */
-  transition: all 0.3s ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.3);
-  }
-  100% {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
-  }
-}
-
-.text-4xl.font-bold.text-cyan-400.drop-shadow-md.animate-pulse {
-    /* If the guide system accidentally targets this, disable its visual effects */
-    animation: none !important; /* Stop the guide's pulse fighting the heading's pulse */
-    box-shadow: none !important; /* Remove the blue box-shadow */
-    border-radius: 0 !important; /* Keep the heading sharp, not rounded like a button */
-}
+

@@ -38,7 +38,7 @@ export default function BookAppointmentPage() {
         setFetchingDoctors(true);
         setError("");
         const token = localStorage.getItem("authToken");
-        const headers = token ? { Authorization: token } : {};
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch(`${API_BASE}/doctors`, { headers });
         const json = await res.json();
         // The API returns an array (per your route). If wrapped, handle both — but user indicated direct array.
@@ -61,7 +61,7 @@ export default function BookAppointmentPage() {
         }
       } catch (err) {
         console.error("Error fetching doctors:", err);
-        setError("Failed to load doctors. Check console.");
+        setError(t("failedToLoadDoctors", "Failed to load doctors. Check console."));
       } finally {
         setFetchingDoctors(false);
       }
@@ -78,15 +78,15 @@ export default function BookAppointmentPage() {
 
     const patientId = resolvePatientId();
     if (!patientId) {
-      setError("Patient not found. Please login.");
+      setError(t("patientNotFoundLogin", "Patient not found. Please login."));
       return;
     }
     if (!selectedDoctorId) {
-      setError("Please select a doctor.");
+      setError(t("pleaseSelectDoctor"));
       return;
     }
     if (!appointmentDate) {
-      setError("Please choose appointment date/time.");
+      setError(t("pleaseChooseAppointmentTime"));
       return;
     }
 
@@ -105,7 +105,7 @@ export default function BookAppointmentPage() {
       const token = localStorage.getItem("authToken");
       const headers = {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: token } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
       const res = await fetch(`${API_BASE}/appointments`, {
@@ -116,16 +116,16 @@ export default function BookAppointmentPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        const msg = data?.message || JSON.stringify(data) || "Booking failed";
+        const msg = data?.message || JSON.stringify(data) || t("bookingFailed", "Booking failed");
         throw new Error(msg);
       }
 
-      setSuccess("Appointment booked successfully.");
+      setSuccess(t("appointmentBookedSuccessfully"));
       // navigate to appointments list
       setTimeout(() => navigate("/patient/my-appointments"), 1100);
     } catch (err) {
       console.error("Booking error:", err);
-      setError(err.message || "Booking failed");
+      setError(err.message || t("bookingFailed", "Booking failed"));
     } finally {
       setLoading(false);
     }
@@ -133,17 +133,17 @@ export default function BookAppointmentPage() {
 
   return (
     <div className="container mx-auto p-8 pt-24 max-w-lg">
-      <h1 className="text-3xl font-bold mb-4 text-center">Book Appointment</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">{t("bookAppointment")}</h1>
 
       {fetchingDoctors ? (
-        <p className="text-center">Loading doctors... </p>
+        <p className="text-center">{t("loadingDoctors")}</p>
       ) : (
         <>
-          {doctors.length === 0 && <p className="text-center text-gray-600 mb-4">No doctors found.</p>}
+          {doctors.length === 0 && <p className="text-center text-gray-600 mb-4">{t("noDoctorsFoundShort")}</p>}
 
           <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg border">
             <div className="mb-6">
-              <label className="block text-gray-700 dark:text-gray-50 font-bold mb-2">Choose Doctor</label>
+              <label className="block text-gray-700 dark:text-gray-50 font-bold mb-2">{t("chooseDoctor")}</label>
               <select
                 value={selectedDoctorId}
                 onChange={(e) => setSelectedDoctorId(e.target.value)}

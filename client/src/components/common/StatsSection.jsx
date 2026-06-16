@@ -16,7 +16,7 @@ const StatsSection = () => {
   // ✅ Chart data
   const [chartData, setChartData] = useState({ labels: [], data: [] });
 
-  const { translations } = useLang(); // ✅ use translations
+  const { t } = useLang(); // ✅ use translation helper
 
   // 🔄 Fetch statistics (Registered, Cured, Being Cured)
   useEffect(() => {
@@ -75,7 +75,7 @@ const StatsSection = () => {
         labels: chartData.labels,
         datasets: [
           {
-            label: translations.registered || "Patients Registered", // ✅ translated label
+            label: t("registered"), // ✅ translated label
             data: chartData.data,
             tension: 0.35,
             borderColor: "rgba(239,68,68,1)",
@@ -97,7 +97,7 @@ const StatsSection = () => {
     });
 
     return () => chart.destroy();
-  }, [chartData, translations]);
+  }, [chartData, t]);
 
   // ✅ Derived values
   const cureRate = registeredTotal === 0 ? 0 : Math.round((curedTotal / registeredTotal) * 100);
@@ -107,7 +107,7 @@ const StatsSection = () => {
     <section id="stats" className="py-16 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-extrabold text-center mb-8">
-          {translations.chartTitle || "Registration Analytics"}
+          {t("chartTitle")}
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -118,7 +118,7 @@ const StatsSection = () => {
                 <i className="bi bi-people-fill text-4xl text-red-500" />
                 <div>
                   <div className="font-semibold">
-                    {translations.totalRegistered || "Total Registered"}
+                    {t("totalRegistered")}
                   </div>
                   <div className="text-3xl font-bold text-red-500">
                     {registeredTotal.toLocaleString()}
@@ -130,7 +130,7 @@ const StatsSection = () => {
                 <i className="bi bi-heart-pulse text-4xl text-blue-500" />
                 {/* <div>
                   <div className="font-semibold">
-                    {translations.beingCured || "Being Cured"}
+                    {t("beingCured")}
                   </div>
                   <div className="text-3xl font-bold text-blue-500">
                     {beingCuredTotal.toLocaleString()}
@@ -142,7 +142,7 @@ const StatsSection = () => {
                 <i className="bi bi-heart-pulse text-4xl text-green-500" />
                 <div>
                   <div className="font-semibold">
-                    {translations.totalCured || "Total Cured"}
+                    {t("totalCured")}
                   </div>
                   <div className="text-3xl font-bold text-green-500">
                     {curedTotal.toLocaleString()}
@@ -155,7 +155,7 @@ const StatsSection = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {translations.cureRate || "Cure Rate"}
+                    {t("cureRate")}
                   </div>
                   <div className="text-2xl font-bold">
                     {isNaN(cureRate) ? "0%" : cureRate + "%"}
@@ -163,14 +163,14 @@ const StatsSection = () => {
                 </div>
                 <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {translations.activeCases || "Active Cases"}
+                    {t("activeCases")}
                   </div>
                   <div className="text-2xl font-bold">{activeCases.toLocaleString()}</div>
                 </div>
               </div>
 
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                {translations.demoNote || "* Demo values - connect to your API to make these live."}
+                {t("demoNote")}
               </div>
             </div>
           </div>

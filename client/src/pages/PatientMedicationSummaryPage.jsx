@@ -11,7 +11,76 @@ export default function PatientMedicationSummaryPage() {
     const [summary, setSummary] = useState({ count: 0, prescriptions: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { t } = useLang();
+    const { t, language, translateText } = useLang();
+    const [translatedPrescriptions, setTranslatedPrescriptions] = useState([]);
+
+    useEffect(() => {
+        const translatePrescriptions = async () => {
+            if (summary.prescriptions.length === 0 || language === "en") {
+                setTranslatedPrescriptions(
+                    summary.prescriptions.map((p) => ({
+                        ...p,
+                        translatedMedicines: (p.medicines ?? []).map((m) => ({
+                            ...m,
+                            translatedName: m.name,
+                            translatedDosage: m.dosage,
+                            translatedFrequency: m.frequency,
+                            translatedDuration: m.duration,
+                        })),
+                    }))
+                );
+                return;
+            }
+            try {
+                const textsToTranslate = [];
+                summary.prescriptions.forEach((p) => {
+                    (p.medicines ?? []).forEach((m) => {
+                        textsToTranslate.push(m.name || "");
+                        textsToTranslate.push(m.dosage || "");
+                        textsToTranslate.push(m.frequency || "");
+                        textsToTranslate.push(m.duration || "");
+                    });
+                });
+
+                const translatedTexts = await translateText(textsToTranslate, language);
+
+                let tIndex = 0;
+                const newTranslatedPrescriptions = summary.prescriptions.map((p) => ({
+                    ...p,
+                    translatedMedicines: (p.medicines ?? []).map((m) => {
+                        const translatedName = translatedTexts[tIndex++] || m.name;
+                        const translatedDosage = translatedTexts[tIndex++] || m.dosage;
+                        const translatedFrequency = translatedTexts[tIndex++] || m.frequency;
+                        const translatedDuration = translatedTexts[tIndex++] || m.duration;
+                        return {
+                            ...m,
+                            translatedName,
+                            translatedDosage,
+                            translatedFrequency,
+                            translatedDuration,
+                        };
+                    }),
+                }));
+                setTranslatedPrescriptions(newTranslatedPrescriptions);
+            } catch (error) {
+                console.error("Translation of medication summary prescriptions failed:", error);
+                setTranslatedPrescriptions(
+                    summary.prescriptions.map((p) => ({
+                        ...p,
+                        translatedMedicines: (p.medicines ?? []).map((m) => ({
+                            ...m,
+                            translatedName: m.name,
+                            translatedDosage: m.dosage,
+                            translatedFrequency: m.frequency,
+                            translatedDuration: m.duration,
+                        })),
+                    }))
+                );
+            }
+        };
+
+        translatePrescriptions();
+    }, [summary.prescriptions, language, translateText]);
 
     useEffect(() => {
         const fetchSummaryData = async () => {
@@ -94,8 +163,8 @@ export default function PatientMedicationSummaryPage() {
         </div>
             
             <div className="space-y-8">
-                {summary.prescriptions.length > 0 ? (
-                    summary.prescriptions.map((prescription) => (
+                {translatedPrescriptions.length > 0 ? (
+                    translatedPrescriptions.map((prescription) => (
                         <div key={prescription.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                             <h3 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400 mb-4 flex items-center">
                                 <Calendar className="mr-3 h-5 w-5" />
@@ -112,12 +181,12 @@ export default function PatientMedicationSummaryPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {prescription.medicines.map((med, index) => (
+                                        {(prescription.translatedMedicines || prescription.medicines || []).map((med, index) => (
                                             <tr key={index} className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 last:border-b-0">
-                                                <th scope="row" className="px-6 py-4 font-bold text-gray-900 dark:text-white whitespace-nowrap">{med.name}</th>
-                                                <td className="px-6 py-4">{med.dosage}</td>
-                                                <td className="px-6 py-4">{med.frequency}</td>
-                                                <td className="px-6 py-4">{med.duration}</td>
+                                                <th scope="row" className="px-6 py-4 font-bold text-gray-900 dark:text-white whitespace-nowrap">{med.translatedName || med.name}</th>
+                                                <td className="px-6 py-4">{med.translatedDosage || med.dosage}</td>
+                                                <td className="px-6 py-4">{med.translatedFrequency || med.frequency}</td>
+                                                <td className="px-6 py-4">{med.translatedDuration || med.duration}</td>
                                             </tr>
                                         ))}
                                     </tbody>

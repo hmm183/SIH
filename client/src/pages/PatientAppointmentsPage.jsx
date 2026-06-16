@@ -25,19 +25,19 @@ export default function PatientAppointmentsPage() {
       try {
         const patientId = resolvePatientId();
         if (!patientId) {
-          setError("No patientId found in localStorage. Please log in.");
+          setError(t("noPatientIdError", "No patientId found in localStorage. Please log in."));
           setLoading(false);
           return;
         }
 
         const token = localStorage.getItem("authToken");
-        const headers = token ? { Authorization: token } : {};
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const res = await fetch(`${API_BASE}/appointments/patient/${patientId}`, { headers });
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data?.message || "Failed to fetch appointments");
+          throw new Error(data?.message || t("failedToFetchAppointments", "Failed to fetch appointments"));
         }
 
         // Controller returns { openAppointments, pastAppointments }
@@ -45,7 +45,7 @@ export default function PatientAppointmentsPage() {
         setPastAppointments(data.pastAppointments || []);
       } catch (err) {
         console.error("Fetch appointments error:", err);
-        setError(err.message || "Error fetching appointments");
+        setError(err.message || t("errorFetchingAppointments", "Error fetching appointments"));
       } finally {
         setLoading(false);
       }
@@ -76,10 +76,10 @@ export default function PatientAppointmentsPage() {
         {openAppointments.length ? (
           openAppointments.map((a) => (
             <div key={a._id} className="mb-4 p-4 border rounded-lg shadow-sm bg-white dark:bg-gray-800">
-              <p><strong>Doctor:</strong> {a.doctorId?.name ?? "—"}</p>
-              <p><strong>Date:</strong> {new Date(a.appointmentDate).toLocaleString()}</p>
-              <p><strong>Reason:</strong> {a.reason}</p>
-              <p className="text-yellow-600"><strong>Status:</strong> {a.status}</p>
+              <p><strong>{t("doctor")}:</strong> {a.doctorId?.name ?? "—"}</p>
+              <p><strong>{t("date")}:</strong> {new Date(a.appointmentDate).toLocaleString()}</p>
+              <p><strong>{t("reason", "Reason")}:</strong> {a.reason}</p>
+              <p className="text-yellow-600"><strong>{t("status")}:</strong> {t(a.status, a.status)}</p>
             </div>
           ))
         ) : (
@@ -92,14 +92,14 @@ export default function PatientAppointmentsPage() {
         {pastAppointments.length ? (
           pastAppointments.map((a) => (
             <div key={a._id} className="mb-4 p-4 border rounded-lg shadow-sm  bg-gray-50 dark:bg-gray-800">
-              <p><strong>Doctor:</strong> {a.doctorId?.name ?? "—"}</p>
-              <p><strong>Date:</strong> {new Date(a.appointmentDate).toLocaleString()}</p>
-              <p><strong>Reason:</strong> {a.reason}</p>
-              <p className={a.status === "completed" ? "text-green-600" : "text-red-600"}><strong>Status:</strong> {a.status}</p>
+              <p><strong>{t("doctor")}:</strong> {a.doctorId?.name ?? "—"}</p>
+              <p><strong>{t("date")}:</strong> {new Date(a.appointmentDate).toLocaleString()}</p>
+              <p><strong>{t("reason", "Reason")}:</strong> {a.reason}</p>
+              <p className={a.status === "completed" ? "text-green-600" : "text-red-600"}><strong>{t("status")}:</strong> {t(a.status, a.status)}</p>
             </div>
           ))
         ) : (
-          <p className="text-gray-600">No past appointments.</p>
+          <p className="text-gray-600">{t("noPastAppointments")}</p>
         )}
       </section>
        {/* Dashboard button at the bottom */}
