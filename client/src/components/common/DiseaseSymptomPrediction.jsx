@@ -203,85 +203,28 @@ function DiseaseSymptomPrediction() {
     setError("");
     setPrediction(null);
 
-    const postUrl =
-      "https://hmm183-disease-prediction-workers.hf.space/predict";
-    const getUrlBase =
-      "https://hmm183-disease-prediction-workers.hf.space/predict/";
+    const postUrl = "https://hmm183-disease-prediction-workers.hf.space/predict";
 
     try {
-      const postResponse = await fetch(postUrl, {
+      const response = await fetch(postUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: [Array.from(selectedSymptoms)] }),
+        // Notice this matches the Pydantic model we built in FastAPI exactly
+        body: JSON.stringify({ selected_symptoms: Array.from(selectedSymptoms) }),
       });
 
-      if (!postResponse.ok)
-        throw new Error(
-          `API Error (POST): ${postResponse.status} ${postResponse.statusText}`
-        );
-
-      const eventData = await postResponse.json();
-      const eventId = eventData.event_id;
-      if (!eventId) throw new Error("API did not return a valid event_id.");
-
-      const getResponse = await fetch(`${getUrlBase}${eventId}`);
-      if (!getResponse.ok)
-        throw new Error(
-          `API Error (GET): ${getResponse.status} ${getResponse.statusText}`
-        );
-
-      const reader = getResponse.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let predictionFound = false;
-
-      const processLine = async (line) => {
-        if (line.startsWith("data:")) {
-          try {
-            const eventJson = JSON.parse(line.substring(5));
-            if (Array.isArray(eventJson) && eventJson.length > 0) {
-              const rawPred = eventJson[0];
-              const translated = await translateText(rawPred, language);
-              setPrediction(translated[0] || rawPred);
-              predictionFound = true;
-            } else if (eventJson.msg === "process_completed") {
-              if (eventJson.success) {
-                const rawPred = eventJson.output.data[0];
-                const translated = await translateText(rawPred, language);
-                setPrediction(translated[0] || rawPred);
-                predictionFound = true;
-              } else {
-                setError(t("predictionFailed"));
-              }
-            }
-          } catch (e) {
-            console.warn("Could not parse a line of the stream:", line, e);
-          }
-        }
-      };
-
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop();
-
-        for (const line of lines) {
-          await processLine(line);
-          if (predictionFound) break;
-        }
-        if (predictionFound) break;
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
 
-      if (!predictionFound && buffer) {
-        await processLine(buffer);
-      }
+      // Just grab the JSON directly, no stream parsing needed!
+      const data = await response.json();
+      const rawPred = data.prediction;
 
-      if (!predictionFound) {
-        setError(t("predictionNotFound"));
-      }
+      // Keep your translation logic
+      const translated = await translateText(rawPred, language);
+      setPrediction(translated[0] || rawPred);
+
     } catch (e) {
       setError(e.message);
       console.error("API call failed:", e);
@@ -328,8 +271,8 @@ function DiseaseSymptomPrediction() {
               <button
                 key={symptom}
                 className={`px-4 py-1.5 rounded-full border text-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${selectedSymptoms.has(symptom)
-                    ? "bg-cyan-400 text-black border-cyan-400 shadow-md"
-                    : "bg-gray-100 dark:bg-gray-950 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-400 hover:border-cyan-400 hover:text-cyan-400"
+                  ? "bg-cyan-400 text-black border-cyan-400 shadow-md"
+                  : "bg-gray-100 dark:bg-gray-950 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-400 hover:border-cyan-400 hover:text-cyan-400"
                   }`}
                 onClick={() => handleSymptomToggle(symptom)}
               >
