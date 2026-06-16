@@ -263,5 +263,6 @@ def health():
 
 
 if __name__ == '__main__':
-    logging.info("Starting translation service on port 5005...")
-    app.run(host='0.0.0.0', port=5005, debug=True)
+    port = int(os.environ.get('PORT', 5005))
+    logging.info(f"Starting translation service on port {port}...")
+    app.run(host='0.0.0.0', port=port, debug=False)
