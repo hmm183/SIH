@@ -261,6 +261,12 @@ def health():
         "google_blocked": time.time() < _google_blocked_until,
     })
 
+@app.route('/', methods=['GET'])
+def index():
+    return jsonify({
+        "status": "healthy"
+    })
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5005))
